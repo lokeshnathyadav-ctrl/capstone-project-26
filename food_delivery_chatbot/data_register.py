@@ -22,6 +22,6 @@ except RepositoryNotFoundError:
 
 # Uploads the data to Hugging Face Hub 
 api.upload_folder(
-    folder_path="D:/Capstone_Project_26/data",
+    folder_path="Capstone_Project_26/data",
     repo_id=repo_id,
     repo_type=repo_type)    
