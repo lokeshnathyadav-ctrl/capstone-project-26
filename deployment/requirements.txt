@@ -1,8 +1,11 @@
-numpy==2.0.2
+huggingface_hub==1.8.0
+pandas==2.2.2
+numpy==2.2.5
 streamlit==1.43.2
 langchain-groq==0.3.8
-langchainhub==0.1.21
-langchain-experimental==0.3.4
+langchain_experimental==0.3.4
+langchain_groq==0.3.8
+spacy==3.8.14
+langchain_core==0.3.84
 langchain_huggingface
-langchain-groq
-spacy
+langchainhub
