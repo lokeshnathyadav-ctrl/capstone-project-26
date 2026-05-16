@@ -19,7 +19,7 @@ jobs:
           pip install -r requirements.txt
       - name: Upload Dataset to Hugging Face Hub
         env:
-          HF_TOKE: ${{ secrets.HF_TOKEN }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: python food_delivery_chatbot/data_register.py
   data-preparation:
       runs-on: ubuntu-latest
@@ -38,7 +38,7 @@ jobs:
             pip install -r requirements.txt
         - name: Run Data Preparation
           env:
-            HF_TOKE: ${{ secrets.HF_TOKEN }}
+            HF_TOKEN: ${{ secrets.HF_TOKEN }}
           run: python food_delivery_chatbot/prep.py
           
   package-tools:
