@@ -1,6 +1,5 @@
 huggingface_hub==1.8.0
 pandas==2.2.2
-numpy==2.2.5
 streamlit==1.43.2
 langchain-groq==0.3.8
 langchain_experimental==0.3.4
