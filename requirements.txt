@@ -4,7 +4,7 @@ streamlit==1.43.2
 langchain-groq==0.3.8
 langchain_experimental==0.3.4
 langchain_groq==0.3.8
-spacy==3.8.13
+spacy==3.7.4
 langchain_core==0.3.84
 langchain_huggingface
 langchainhub
