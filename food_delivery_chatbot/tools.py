@@ -5,16 +5,23 @@ import pandas as pd  # manipulating and working with data
 import sqlite3       # Used to build SQL agent
 
 # Langchain framework to create custom agents for open-source LLMs
-from langchain.agents import create_sql_agent, initialize_agent
+#from langchain.agents import create_sql_agent, initialize_agent
+from langchain_community.agent_toolkits.sql.base import create_sql_agent
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain.agents.agent_types import AgentType
-from langchain.sql_database import SQLDatabase
-from langchain.agents.agent_toolkits import SQLDatabaseToolkit
+from langchain import SQLDatabase
+from langchain_community.utilities import SQLDatabase
+#from langchain.sql_database import SQLDatabase
+#from langchain.agents.agent_toolkits import SQLDatabaseToolkit
 from langchain import hub
 from langchain.agents import load_tools
 from langchain.agents import Tool
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
+#from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
+from langchain.agents.agent_toolkits import SQLDatabaseToolkit
+from langchain.agents import load_tools
+from langchain_community.agent_toolkits.load_tools import load_tools
 
 # Supress unnecessary warnings
 import warnings
@@ -30,17 +37,23 @@ from langchain.memory import ConversationBufferMemory
 from langchain.utilities import SerpAPIWrapper
 from langchain.agents import initialize_agent
 
-if "GROQ_API_KEY" not in os.environ:
-    os.environ["GROQ_API_KEY"] = getpass.getpass("Enter your Groq API key: ")
+#if "GROQ_API_KEY" not in os.environ:
+#    os.environ["GROQ_API_KEY"] = getpass.getpass("Enter your Groq API key: ")
+groq_api_key = os.getenv('GROQ_API_KEY')
 
-os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
-os.environ["LANGSMITH_TRACING"] = "true"
+if groq-api_key:
+    print("GROQ_API_KEY is set:", groq_api_key)
+else:
+    print("GROQ_API_KEY is not set in environment variables.")
+#os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+#os.environ["LANGSMITH_TRACING"] = "true"
 
 llm = ChatGroq(
     model = "meta-llama/llama-4-scout-17b-16e-instruct",           # Name of the chat model
     temperature = 0,                                               # Temperature setting to '0', for consistent and deterministic responses
     max_tokens = 1024,                                              # maximum number of tokens in the output
     max_retries=2,
+    groq_api_key=groq_api_key,
     timeout=None)
 
 DATABASE_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db"
