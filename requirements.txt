@@ -1,11 +1,10 @@
-huggingface_hub==0.32.6
-datasets==3.6.0
+huggingface_hub==1.8.0
 pandas==2.2.2
-numpy==2.0.2
+numpy==2.2.5
 streamlit==1.43.2
 langchain-groq==0.3.8
 langchainhub==0.1.21
 langchain-experimental==0.3.4
 langchain_huggingface
-langchain-groq
-spacy
+langchain-groq==0.3.8
+spacy==3.8.14
