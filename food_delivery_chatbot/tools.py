@@ -41,7 +41,7 @@ from langchain.agents import initialize_agent
 #    os.environ["GROQ_API_KEY"] = getpass.getpass("Enter your Groq API key: ")
 groq_api_key = os.getenv('GROQ_API_KEY')
 
-if groq-api_key:
+if groq_api_key:
     print("GROQ_API_KEY is set:", groq_api_key)
 else:
     print("GROQ_API_KEY is not set in environment variables.")
