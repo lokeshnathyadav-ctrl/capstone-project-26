@@ -5,7 +5,7 @@ import pandas as pd
 from huggingface_hub import hf_hub_download
 
 # Function to get response from the chat agent
-def get_reponse_from_chat_agent(query,chat_history=[]:
+def get_reponse_from_chat_agent(query,chat_history=[]):
     response = chat_agent.run(agent_prompt)
     return response
 
