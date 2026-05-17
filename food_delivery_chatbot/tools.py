@@ -223,28 +223,28 @@ class Chatbot:
     #order_details = db_agent.invoke(f"Fetch the order information related to Order ID '{order_id}' in a list")
 
     # Normalize to list
-    if isinstance(order_details["output"], dict) and "items" in order_details["output"]:
-        order_results = order_details["output"]["items"]
-    elif isinstance(order_details["output"],str):
-        order_results = [i.strip() for i in order_details["output"].split(",")]
-    else:
-        order_results = order_details["output"]
+        if isinstance(order_details["output"], dict) and "items" in order_details["output"]:
+            order_results = order_details["output"]["items"]
+        elif isinstance(order_details["output"],str):
+            order_results = [i.strip() for i in order_details["output"].split(",")]
+        else:
+            order_results = order_details["output"]
 
-    # Agent Prompt
-    agent_prompt = f"""
-    The user querying for a particular order with Order ID, '{order_id}'.
-    The user's query is '{user_query}'. 
-    The details relevant to that particular order and user query are: '{order_results}'.
+        # Agent Prompt
+        agent_prompt = f"""
+        The user querying for a particular order with Order ID, '{order_id}'.
+        The user's query is '{user_query}'. 
+        The details relevant to that particular order and user query are: '{order_results}'.
     
-    Here is the process to follow:
-    1. Confirm if the order information can match the expectation of an user query.
-    2. If yes, generate a suitable response that address the query. If no, respond: "Sorry! Order not found."
-    3. Pass the response generated in step: 2 to "Answering_Tool".
-    4. Show the result got from the step: 3 as output.
-    """
-    response = chat_agent.run(agent_prompt)
-    print(response)
-    return response
+        Here is the process to follow:
+        1. Confirm if the order information can match the expectation of an user query.
+        2. If yes, generate a suitable response that address the query. If no, respond: "Sorry! Order not found."
+        3. Pass the response generated in step: 2 to "Answering_Tool".
+        4. Show the result got from the step: 3 as output.
+        """
+        response = chat_agent.run(agent_prompt)
+        print(response)
+        return response
     def chat(self,user_query):
         if not self.chat_history:
             print(self,welcome_message)
