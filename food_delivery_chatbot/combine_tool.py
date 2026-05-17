@@ -24,8 +24,18 @@ from langchain.agents import initialize_agent
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
+order_query_tool = Tool(
+    name = "OrderQueryTool",
+    func = order_query,
+    description = "Understands the context of an user query and match with order related information to generate a raw response.")
+answer_tool = Tool(
+    name = "PolishedResponses",
+    func = Answering_Tool,
+    description = "Modifies the raw responses obtained from order query tool into polished user-friendly responses.")
+
 # Initialize Tools & Agent
 tools = [order_query_tool, answer_tool]
+
 chat_agent = initialize_agent(
     tools=tools,
     llm=llm,
