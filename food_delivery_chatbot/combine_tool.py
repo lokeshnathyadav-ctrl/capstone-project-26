@@ -122,6 +122,9 @@ llm = ChatGroq(
 # Initialize Tools & Agent
 tools = [order_query_tool, answer_tool]
 
+# Defining the memory for 'conversational_react_description" agent type
+memory = ConversationBufferMemory(memory_key="chat_history")
+
 chat_agent = initialize_agent(
     tools=tools,
     llm=llm,
