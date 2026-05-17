@@ -206,10 +206,21 @@ chat_agent = initialize_agent(
 # Fetch order info
 # Clubs the user query along with order info to generate raw response
 # Polishes the raw response into polished user-friendly replies
-
-def query_response(order_id: str, user_query: str) -> str:
+class Chatbot:
+    def __init__(self):
+        self.chat_history = []
+        self.immediate_response = "Could you please share the order number you're searching for? I truly want to assist you and make sure everything is just right"
+    def get_initial_response(self,user_query):
+        self.chat_history.append(user_query)
+        # Assuming a function defined to get the 'order_id'
+        order_id = self.get_order_id()
+        return self.query_repsone(self.chat_history,order_id)
+    def get_order_id(self):
+        # Logic to get the order_id
+        order_details = db_agent.invoke(f"Fetch the order information related to Order ID '{order_id}' in a list")
+    def query_response(order_id: str, user_query: str) -> str:
     # Fetch order information based on given order_id
-    order_details = db_agent.invoke(f"Fetch the order information related to Order ID '{order_id}' in a list")
+    #order_details = db_agent.invoke(f"Fetch the order information related to Order ID '{order_id}' in a list")
 
     # Normalize to list
     if isinstance(order_details["output"], dict) and "items" in order_details["output"]:
@@ -234,3 +245,20 @@ def query_response(order_id: str, user_query: str) -> str:
     response = chat_agent.run(agent_prompt)
     print(response)
     return response
+    def chat(self,user_query):
+        if not self.chat_history:
+            print(self,welcome_message)
+            response=self.immediate_response
+            self.chat_history.append(user_query)
+            #Assusimg a fn to get order_id
+            order_id = self.get_order_id()
+            response=self.query_response(self.chat_history,order_id)
+            return response
+        else:
+            # Logic to handle subsequent user inputs
+            pass
+
+chatbot=Chatbot()
+print(chatbot.get_initial_response())
+user_query=input("User: ")
+print(chatbot.chat(user_query))
