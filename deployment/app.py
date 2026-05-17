@@ -26,13 +26,9 @@ from langchain.agents import initialize_agent
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-groq_api_key = os.getenv('GROQ_API_KEY')
-
-if groq_api_key:
-    print("GROQ_API_KEY is set:", groq_api_key)
-else:
-    print("GROQ_API_KEY is not set in environment variables.")
-
+import getpass
+if "GROQ_API_KEY" not in os.environ:
+    os.environ["GROQ_API_KEY"] = getpass.getpass("Enter your Groq API key: ")
 llm = ChatGroq(
     model = "meta-llama/llama-4-scout-17b-16e-instruct",           # Name of the chat model
     temperature = 0,                                               # Temperature setting to '0', for consistent and deterministic responses
