@@ -63,7 +63,7 @@ def order_query(inputs):
 
 order_query_tool = Tool(
     name = "OrderQueryTool",
-    func = order_query_,
+    func = order_query,
     description = "Understands the context of an user query and match with order related information to generate a raw response.")
 
 # Defining a function to refine raw responses into precise, polished answers to users
