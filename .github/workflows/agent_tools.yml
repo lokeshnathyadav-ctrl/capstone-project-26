@@ -173,5 +173,5 @@ jobs:
         env:
 
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: python hosting/hosting.py
