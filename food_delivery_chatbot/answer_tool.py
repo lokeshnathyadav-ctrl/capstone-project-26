@@ -2,6 +2,7 @@ import json          # to objectify Java script notion
 import os            # to perform operating system related functions
 import pandas as pd  # manipulating and working with data
 import spacy
+from langchain.agents import Tool
 # Supress unnecessary warnings
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
