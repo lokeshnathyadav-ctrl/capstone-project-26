@@ -24,10 +24,81 @@ from langchain.agents import initialize_agent
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
+def order_query(inputs):
+    """ 
+    Takes the order context from the SQL agent and generate a raw response for the query
+    Accepts a dict of order related information and the user's query.
+    """
+    # Handling a dict input
+    if isinstance(inputs,dict):
+        user_query = inputs.get("user_query", "")
+        order_results = inputs.get("order_results", [])    
+    else:
+        # To Handle a string input fallback
+        order_results = [i.strip() for i in str(inputs).split(",")]
+        user_query = ""
+
+    system_prompt = """
+    You are an AI powered response generator. Your role is to generate a raw response for a given input.
+    Input is a order context obtained from the SQL Agent.
+    Understand the context of the provided input and frame a raw response as output.
+
+    When crafting a raw response:
+    1. Cross check if the order information is relevant to user query or not.
+    2. Do not produce a raw response if the context provided to you doesn't match the user's query.
+    3. In such case give output as "Invalid Request: Try again."
+
+    """
+    raw_responses = []
+    for context in order_results:
+        prompt = f"Generate one raw response related to: '{order_results}' considering the user query: '{user_query}'."
+        response = llm.predict_messages(
+        [
+        SystemMessage(content=system_prompt),
+        HumanMessage(content=prompt)])
+        query = response.content.strip()
+        if query:
+            raw_responses.append(query)
+        return raw_responses
+
 order_query_tool = Tool(
     name = "OrderQueryTool",
-    func = order_query,
+    func = order_query_,
     description = "Understands the context of an user query and match with order related information to generate a raw response.")
+
+# Defining a function to refine raw responses into precise, polished answers to users
+class Answering_Tool:
+    def init(self, language_model = "en_core_web_sm"):
+        """
+        Initialize the Answering_Tool with a SpaCy language model.
+
+        Args:
+        - language_model(str): The SpaCy language model to use (default:"en_core_web_sm")
+        """
+        self.nlp=spacy.load(language_model)
+
+    def generate_answer(self,question,raw_response):
+        """
+        Generate a user-friendly answer based on a question and a raw response.
+
+        Args:
+        - question (str): The question being asked
+        - raw_response (str): The raw response to polish
+
+        Returns
+        - str: The polished answer
+        """
+        # Process the question and raw response with Spacy
+        question_doc = self.nlp(question)
+        raw_response_doc = self.nlp(raw_response)
+
+        # Perform answer generation tasks, such as:
+        # - Identifying relevant entities
+        # - Determining the answer's sentiment
+        polished_answer = self.polish_answer(raw_response)
+
+        return polished_answer
+
 answer_tool = Tool(
     name = "PolishedResponses",
     func = Answering_Tool,
