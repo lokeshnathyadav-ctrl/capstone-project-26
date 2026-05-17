@@ -257,8 +257,3 @@ class Chatbot:
         else:
             # Logic to handle subsequent user inputs
             pass
-
-chatbot=Chatbot()
-print(chatbot.get_initial_response())
-user_query=input("User: ")
-print(chatbot.chat(user_query))
