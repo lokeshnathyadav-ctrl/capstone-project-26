@@ -35,7 +35,6 @@ llm = ChatGroq(
     temperature = 0,                                               # Temperature setting to '0', for consistent and deterministic responses
     max_tokens = 1024,                                              # maximum number of tokens in the output
     max_retries=2,
-    api_key=groq_api_key,
     timeout=None)
 
 DATABASE_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db"
