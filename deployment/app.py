@@ -25,6 +25,22 @@ from langchain.utilities import SerpAPIWrapper
 from langchain.agents import initialize_agent
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+groq_api_key = os.getenv('GROQ_API_KEY')
+
+if groq_api_key:
+    print("GROQ_API_KEY is set:", groq_api_key)
+else:
+    print("GROQ_API_KEY is not set in environment variables.")
+
+llm = ChatGroq(
+    model = "meta-llama/llama-4-scout-17b-16e-instruct",           # Name of the chat model
+    temperature = 0,                                               # Temperature setting to '0', for consistent and deterministic responses
+    max_tokens = 1024,                                              # maximum number of tokens in the output
+    max_retries=2,
+    timeout=None)
+
+# Defining a function to build a order query tool
 def order_query(inputs):
     """ 
     Takes the order context from the SQL agent and generate a raw response for the query
@@ -105,19 +121,6 @@ answer_tool = Tool(
     func = Answering_Tool,
     description = "Modifies the raw responses obtained from order query tool into polished user-friendly responses.")
 
-groq_api_key = os.getenv('GROQ_API_KEY')
-
-if groq_api_key:
-    print("GROQ_API_KEY is set:", groq_api_key)
-else:
-    print("GROQ_API_KEY is not set in environment variables.")
-
-llm = ChatGroq(
-    model = "meta-llama/llama-4-scout-17b-16e-instruct",           # Name of the chat model
-    temperature = 0,                                               # Temperature setting to '0', for consistent and deterministic responses
-    max_tokens = 1024,                                              # maximum number of tokens in the output
-    max_retries=2,
-    timeout=None)
 
 # Chatbot Class
 class Chatbot:
