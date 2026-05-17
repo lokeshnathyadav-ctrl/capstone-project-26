@@ -1,25 +1,60 @@
-
-# Importing required libraries to build a Chat UI
 import streamlit as st
-import pandas as pd
-from huggingface_hub import hf_hub_download
+from langchain.agents import initialize_agent, AgentType
 
-st.title("FoodHub Delivery ChatBot")
-el = st.text("Welcome to FoodHub Chat Agent!")
-el.empty()
-                                 
-# Function to get response from the chat agent
-def get_response_from_chat_agent(query,chat_history=[]):
-    response = chat_agent.run(agent_prompt)
-    return response
+# Streamlit UI
+st.set_page_config(
+    page_title="FoodHub Delivery ChatBot",
+    page_icon="🍔"
+)
 
-# Initializing session state to keep track of chat history
-if 'chat_history' not in st.session_state:
-    st.session_state.chat_history=[]
+st.title("🍔 FoodHub Delivery ChatBot")
 
-with st.form(key="message_form"):
-    user_query=st.text_area("You:",height=100)
-    submitted = st.form_submit_button(label='Send')
-    
-    if submitted:
-        get_response_from_chat_agent(user_query)
+st.write("Welcome to FoodHub Chat Support Assistant!")
+
+# Session State Initialization
+
+if "bot" not in st.session_state:
+    st.session_state.bot = Chatbot()
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# Display Previous Messages
+for message in st.session_state.messages:
+
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+# User Input
+
+
+user_query = st.chat_input("Type your message here...")
+
+# Chat Processing
+
+if user_query:
+
+    # Show User Message
+    st.session_state.messages.append(
+        {
+            "role": "user",
+            "content": user_query
+        }
+    )
+
+    with st.chat_message("user"):
+        st.markdown(user_query)
+
+    # Generate Bot Response
+    response = st.session_state.bot.chat(user_query)
+
+    # Store Assistant Response
+    st.session_state.messages.append(
+        {
+            "role": "assistant",
+            "content": response
+        }
+    )
+
+    # Display Assistant Response
+    with st.chat_message("assistant"):
+        st.markdown(response)
