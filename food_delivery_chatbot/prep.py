@@ -7,12 +7,23 @@ api = HfApi(token=os.getenv("HF_TOKEN"))
 # Defining the path of the uploaded data in Hugging Face Hub
 DATABASE_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db"
 print("Connected to database")
-# Source - https://stackoverflow.com/a/63684455
-# Posted by davidbrown
+# Source - https://stackoverflow.com/a/50294531
+# Posted by psaniko
 # Retrieved 2026-06-17, License - CC BY-SA 4.0
 
-if response.status_code == 429:
-  time.sleep(int(response.headers["Retry-After"]))
+class TooManyRequests(Exception):
+"""Too many requests"""
+
+@task(
+   rate_limit='10/s',
+   autoretry_for=(ConnectTimeout, TooManyRequests,),
+   retry_backoff=True)
+def api(*args, **kwargs):
+  r = requests.get('placeholder-external-api')
+
+  if r.status_code == 429:
+    raise TooManyRequests()
+
 
 ORDERS_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/orders_table.csv"
 CONSUMERS_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/consumers_table.csv"
