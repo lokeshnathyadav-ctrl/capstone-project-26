@@ -91,7 +91,7 @@ def order_query(inputs) -> list:
             HumanMessage(content=prompt)
         ]
     )
-        raw_response = response.content.strip()
+    raw_response = response.content.strip()
     return raw_response
 
 order_query_tool = Tool(
