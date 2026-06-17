@@ -34,6 +34,8 @@ llm = ChatGroq(
     max_retries=2,
     timeout=None)
 
+from huggingface_hub import login,HfApi
+api = HfApi(token=os.getenv("HF_TOKEN"))
 DATABASE_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db"
 
 # Initializing SQL database object
