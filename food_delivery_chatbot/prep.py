@@ -7,6 +7,13 @@ api = HfApi(token=os.getenv("HF_TOKEN"))
 # Defining the path of the uploaded data in Hugging Face Hub
 DATABASE_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db"
 print("Connected to database")
+# Source - https://stackoverflow.com/a/63684455
+# Posted by davidbrown
+# Retrieved 2026-06-17, License - CC BY-SA 4.0
+
+if response.status_code == 429:
+  time.sleep(int(response.headers["Retry-After"]))
+
 ORDERS_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/orders_table.csv"
 CONSUMERS_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/consumers_table.csv"
 DELIVERY_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/delivery_table.csv"
