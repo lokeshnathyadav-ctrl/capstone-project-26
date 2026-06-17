@@ -1,10 +1,8 @@
 import json
 import os 
-import spacy
 import sqlite3 
 import getpass
 import pandas as pd
-import streamlit as st
 from huggingface_hub import login,HfApi
 from langchain_groq import ChatGroq
 from langchain_core.messages import SystemMessage, HumanMessage
@@ -16,7 +14,6 @@ from langchain.agents.agent_types import AgentType
 from langchain.agents import initialize_agent, AgentType, load_tools, Tool
 from langchain_community.agent_toolkits.load_tools import load_tools
 from langchain.utilities import SerpAPIWrapper
-from langchain.memory import ConversationBufferMemory
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
 
