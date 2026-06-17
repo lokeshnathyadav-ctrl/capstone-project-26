@@ -30,12 +30,34 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 llm = ChatGroq(
     model = "meta-llama/llama-4-scout-17b-16e-instruct",           # Name of the chat model
     temperature = 0,                                               # Temperature setting to '0', for consistent and deterministic responses
-    max_tokens = 1024,                                              # maximum number of tokens in the output
+    max_tokens = 512,                                              # maximum number of tokens in the output
     max_retries=2,
     timeout=None)
 
+DATABASE_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db"
+
+# Initializing SQL database object
+db = SQLDatabase.from_uri("sqlite:///DATABASE_PATH")
+
+# Defining a concise system message
+system_message = """Imagine you are an SQL assistant, expertized at performing sql queries.
+Your role is to fetch data related to online food delivery from existing database.
+Input is given as a query in simple text.
+Output is the retrieved data from the database."""
+
+# Initializing the SQL toolkit with customer database and pre-defined LLM
+toolkit = SQLDatabaseToolkit(db=db,llm=llm)
+
+# Create the SQL agent with the system message
+db_agent = create_sql_agent(
+    llm = llm,
+    toolkit = toolkit,
+    verbose = False,
+    handle_parsing_errors = True,
+    system_message=SystemMessage(system_message)) 
+############################################################################
 # Defining a function to build a order query tool
-def order_query(inputs):
+def order_query(inputs) -> list:
     """ 
     Takes the order context from the SQL agent and generate a raw response for the query
     Accepts a dict of order related information and the user's query.
@@ -60,23 +82,21 @@ def order_query(inputs):
     3. In such case give output as "Invalid Request: Try again."
 
     """
-    raw_responses = []
-    for context in order_results:
-        prompt = f"Generate one raw response related to: '{order_results}' considering the user query: '{user_query}'."
-        response = llm.predict_messages(
+    prompt = f"Generate one raw response related to: '{order_results}' considering the user query: '{user_query}'."
+    response = llm.predict_messages(
         [
-        SystemMessage(content=system_prompt),
-        HumanMessage(content=prompt)])
-        query = response.content.strip()
-        if query:
-            raw_responses.append(query)
-        return raw_responses
+            SystemMessage(content=system_prompt),
+            HumanMessage(content=prompt)
+        ]
+    )
+        raw_response = response.content.strip()
+    return raw_response
 
 order_query_tool = Tool(
     name = "OrderQueryTool",
     func = order_query,
     description = "Understands the context of an user query and match with order related information to generate a raw response.")
-
+##########################################################################################
 # Defining a function to refine raw responses into precise, polished answers to users
 class Answering_Tool:
     def init(self, language_model = "en_core_web_sm"):
@@ -88,25 +108,16 @@ class Answering_Tool:
         """
         self.nlp=spacy.load(language_model)
 
-    def generate_answer(self,question,raw_response):
+    def polished_answer(self,raw_response):
         """
-        Generate a user-friendly answer based on a question and a raw response.
-
+        Polish a raw response into a user-friendly answer.
         Args:
-        - question (str): The question being asked
-        - raw_response (str): The raw response to polish
-
-        Returns
-        - str: The polished answer
+        - raw_response(str): The raw response to polish
+        Returns: 
+        - str: The polished answere
         """
-        # Process the question and raw response with Spacy
-        question_doc = self.nlp(question)
-        raw_response_doc = self.nlp(raw_response)
-
-        # Perform answer generation tasks, such as:
-        # - Identifying relevant entities
-        # - Determining the answer's sentiment
-        polished_answer = self.polish_answer(raw_response)
+        doc = self.nlp(response)
+        polished_answer = raw_response + "."
 
         return polished_answer
 
@@ -114,8 +125,7 @@ answer_tool = Tool(
     name = "PolishedResponses",
     func = Answering_Tool,
     description = "Modifies the raw responses obtained from order query tool into polished user-friendly responses.")
-
-
+################################################################################
 # Chatbot Class
 class Chatbot:
 
@@ -163,12 +173,9 @@ class Chatbot:
             return []
 
     # Generate Agent Response
-    def query_response(self, order_id, user_query):
+    def query_response(self, order_id:str, user_query:str) -> str:
 
         order_results = self.get_order_details(order_id)
-
-        if not order_results:
-            return "Sorry! Order not found."
 
         agent_prompt = f"""
         The user is querying for an order with Order ID '{order_id}'.
