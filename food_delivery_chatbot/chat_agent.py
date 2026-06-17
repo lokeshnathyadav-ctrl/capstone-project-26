@@ -27,6 +27,109 @@ llm = ChatGroq(
     max_retries=2,
     timeout=None)
 
+api = HfApi(token=os.getenv("HF_TOKEN"))
+DATABASE_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db"
+
+# Initializing SQL database object
+db = SQLDatabase.from_uri("sqlite:///DATABASE_PATH")
+
+# Defining a concise system message
+system_message = """Imagine you are an SQL assistant, expertized at performing sql queries.
+Your role is to fetch data related to online food delivery from existing database.
+Input is given as a query in simple text.
+Output is the retrieved data from the database."""
+
+# Initializing the SQL toolkit with customer database and pre-defined LLM
+toolkit = SQLDatabaseToolkit(db=db,llm=llm)
+
+# Create the SQL agent with the system message
+db_agent = create_sql_agent(
+    llm = llm,
+    toolkit = toolkit,
+    verbose = False,
+    handle_parsing_errors = True,
+    system_message=SystemMessage(system_message)) 
+
+# Defining a function to build a order query tool
+def order_query(inputs) -> list:
+    """ 
+    Takes the order context from the SQL agent and generate a raw response for the query
+    Accepts a dict of order related information and the user's query.
+    """
+    # Handling a dict input
+    if isinstance(inputs,dict):
+        user_query = inputs.get("user_query", "")
+        order_results = inputs.get("order_results", [])    
+    else:
+        # To Handle a string input fallback
+        order_results = [i.strip() for i in str(inputs).split(",")]
+        user_query = ""
+
+    system_prompt = """
+    You are an AI powered response generator. Your role is to generate a raw response for a given input.
+    Input is a order context obtained from the SQL Agent.
+    Understand the context of the provided input and frame a raw response as output.
+
+    When crafting a raw response:
+    1. Cross check if the order information is relevant to user query or not.
+    2. Do not produce a raw response if the context provided to you doesn't match the user's query.
+    3. In such case give output as "Invalid Request: Try again."
+
+    """
+    prompt = f"Generate one raw response related to: '{order_results}' considering the user query: '{user_query}'."
+    response = llm.predict_messages(
+        [
+            SystemMessage(content=system_prompt),
+            HumanMessage(content=prompt)
+        ]
+    )
+    raw_response = response.content.strip()
+    return raw_response
+
+order_query_tool = Tool(
+    name = "OrderQueryTool",
+    func = order_query,
+    description = "Understands the context of an user query and match with order related information to generate a raw response.")
+
+# Defining a function to refine raw responses into precise, polished answers to users
+class Answering_Tool:
+    def init(self, language_model = "en_core_web_sm"):
+        """
+        Initialize the Answering_Tool with a SpaCy language model.
+
+        Args:
+        - language_model(str): The SpaCy language model to use (default:"en_core_web_sm")
+        """
+        self.nlp=spacy.load(language_model)
+
+    def polished_answer(self,raw_response):
+        """
+        Polish a raw response into a user-friendly answer.
+        Args:
+        - raw_response(str): The raw response to polish
+        Returns: 
+        - str: The polished answere
+        """
+        doc = self.nlp(response)
+        polished_answer = raw_response + "."
+
+        return polished_answer
+
+answer_tool = Tool(
+    name = "PolishedResponses",
+    func = Answering_Tool,
+    description = "Modifies the raw responses obtained from order query tool into polished user-friendly responses.")
+
+order_query_tool = Tool(
+    name = "OrderQueryTool",
+    func = order_query,
+    description = "Understands the context of an user query and match with order related information to generate a raw response.")
+
+answer_tool = Tool(
+    name = "PolishedResponses",
+    func = Answering_Tool,
+    description = "Modifies the raw responses obtained from order query tool into polished user-friendly responses.")
+
 # Initialize Tools & Agent
 tools = [order_query_tool, answer_tool]
 
