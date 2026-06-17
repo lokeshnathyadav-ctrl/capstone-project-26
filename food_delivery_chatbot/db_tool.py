@@ -1,37 +1,34 @@
-import json          # to objectify Java script notion
-import os            # to perform operating system related functions
-import pandas as pd  # manipulating and working with data
-import sqlite3       # Used to build SQL agent
-from langchain_community.agent_toolkits.sql.base import create_sql_agent
+import json
+import os 
+import spacy
+import sqlite3 
+import getpass
+import pandas as pd
+import streamlit as st
+from huggingface_hub import login,HfApi
+from langchain_groq import ChatGroq
 from langchain_core.messages import SystemMessage, HumanMessage
-from langchain.agents.agent_types import AgentType
-from langchain import SQLDatabase
+from langchain import SQLDatabase, hub
+from langchain_community.agent_toolkits.sql.base import create_sql_agent
 from langchain_community.utilities import SQLDatabase
-from langchain import hub
-from langchain.agents import load_tools
-from langchain.agents import Tool
+from langchain.agents.agent_toolkits import SQLDatabaseToolkit
+from langchain.agents.agent_types import AgentType
+from langchain.agents import initialize_agent, AgentType, load_tools, Tool
+from langchain_community.agent_toolkits.load_tools import load_tools
+from langchain.utilities import SerpAPIWrapper
+from langchain.memory import ConversationBufferMemory
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
-from langchain.agents.agent_toolkits import SQLDatabaseToolkit
-from langchain.agents import load_tools
-from langchain_community.agent_toolkits.load_tools import load_tools
-from langchain_groq import ChatGroq
-from langchain.agents import AgentType
-from langchain.memory import ConversationBufferMemory
-from langchain.utilities import SerpAPIWrapper
-from langchain.agents import initialize_agent
-# Supress unnecessary warnings
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 llm = ChatGroq(
     model = "meta-llama/llama-4-scout-17b-16e-instruct",           # Name of the chat model
     temperature = 0,                                               # Temperature setting to '0', for consistent and deterministic responses
-    max_tokens = 1024,                                              # maximum number of tokens in the output
+    max_tokens = 512,                                              # maximum number of tokens in the output
     max_retries=2,
     timeout=None)
 
+api = HfApi(token=os.getenv("HF_TOKEN"))
 DATABASE_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db"
 
 # Initializing SQL database object
@@ -52,4 +49,4 @@ db_agent = create_sql_agent(
     toolkit = toolkit,
     verbose = False,
     handle_parsing_errors = True,
-    system_message=SystemMessage(system_message))       
+    system_message=SystemMessage(system_message)) 
