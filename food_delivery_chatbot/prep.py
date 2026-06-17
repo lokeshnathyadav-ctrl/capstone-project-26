@@ -8,12 +8,6 @@ api = HfApi(token=os.getenv("HF_TOKEN"))
 DATABASE_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db"
 print("Connected to database")
 
-# Source - https://stackoverflow.com/a/40393773
-# Posted by tadm123, modified by community. See post 'Timeline' for change history
-# Retrieved 2026-06-17, License - CC BY-SA 4.0
-
-requests.get(link, headers = {'User-agent': 'your bot 0.1'})
-
 
 ORDERS_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/orders_table.csv"
 CONSUMERS_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/consumers_table.csv"
