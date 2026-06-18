@@ -125,7 +125,7 @@ class Answering_Tool:
         doc = self.nlp(raw_response)
         polished_response = ""
         for sent in doc.sents:
-            polished_response+= sent.text.title() + " "
+            polished_response += sent.text.title() + " "
         return polished_response.strip()
 
 answer_tool = Tool(
@@ -215,7 +215,7 @@ class Chatbot:
 
         # Actual Query Processing 
         response = self.query_response(       
-            order_id=self.order_id,
+#            order_id=self.order_id,
             user_query=user_query
         )
 
