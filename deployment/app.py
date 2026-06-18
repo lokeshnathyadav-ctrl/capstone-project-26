@@ -4,6 +4,7 @@ import os
 import spacy
 import sqlite3 
 import getpass
+import requests
 import pandas as pd
 import streamlit as st
 from huggingface_hub import login,HfApi
@@ -21,6 +22,23 @@ from langchain.memory import ConversationBufferMemory
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
 
+api = HfApi(token=os.getenv("HF_TOKEN"))
+# Defining the path of the uploaded data in Hugging Face Hub
+DATABASE_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db"
+ORDERS_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/orders_table.csv"
+CONSUMERS_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/consumers_table.csv"
+DELIVERY_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/delivery_table.csv"
+# Establishing a connection with the provided database.
+connection = sqlite3.connect("DATABASE_PATH")
+# Appending the data with the provided 'customer_orders' database
+orders_df = pd.read_csv(ORDERS_PATH)
+consumers_df = pd.read_csv(CONSUMERS_PATH)
+delivery_df = pd.read_csv(DELIVERY_PATH)
+orders_df.to_sql('ORDERS_PATH',connection,if_exists='append',index=False)
+consumers_df.to_sql('CONSUMERS_PATH',connection,if_exists='append',index=False)
+delivery_df.to_sql('DELIVERY_PATH',connection,if_exists='append',index=False)
+cstmr_db = SQLDatabase.from_uri("sqlite:///customer_orders.db")
+
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 llm = ChatGroq(
     model = "meta-llama/llama-4-scout-17b-16e-instruct",           # Name of the chat model
@@ -29,14 +47,10 @@ llm = ChatGroq(
     max_retries=2,
     timeout=None)
 
-api = HfApi(token=os.getenv("HF_TOKEN"))
-DATABASE_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db"
-
-cstmr_db = SQLDatabase.from_uri("sqlite:///DATABASE_PATH")
 db_agent = create_sql_agent(
     llm,
     db = cstmr_db,
-    agent_type = "openai-tools"
+    agent_type = "openai-tools",
     verbose = False) 
 
 # Defining a function to build a order query tool
