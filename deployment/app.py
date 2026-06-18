@@ -152,7 +152,7 @@ class Chatbot:
             "Could you please share the Order ID you're searching for?"
         )
     # Defining a query response function to execute and run the built chat agent
-    def query_response(order_id: str, user_query: str) -> str:
+    def query_response(self, order_id: str, user_query: str) -> str:
         # Fetch order information based on given order_id
         order_details = db_agent.invoke(f"Fetch the order information related to Order ID '{order_id}' in a list")
         # Normalize to list
@@ -202,7 +202,7 @@ class Chatbot:
                 f"Please tell me your concern regarding the order."
             )
         # Actual Query Processing
-        response = query_response(
+        response = self.query_response(
             order_id=self.order_id,
             user_query=user_query
         )
