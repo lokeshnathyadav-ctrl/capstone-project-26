@@ -113,7 +113,7 @@ class Answering_Tool:
         """
         self.nlp=spacy.load(language_model)
 
-    def polished_answer(self,raw_response):
+    def polish_answer(self,raw_response):
         """
         Polish a raw response into a user-friendly answer.
         Args:
@@ -121,10 +121,10 @@ class Answering_Tool:
         Returns: 
         - str: The polished answere
         """
-        doc = self.nlp(response)
-        polished_answer = raw_response + "."
+        doc = self.nlp(raw_response)
+        polished_response = raw_response + "."
 
-        return polished_answer
+        return polished_response
 
 answer_tool = Tool(
     name = "PolishedResponses",
