@@ -192,17 +192,6 @@ class Chatbot:
                 f"{self.ask_order_message}"
             )
 
-        # If order_id not captured yet
-        if self.order_id is None:
-
-            self.order_id = user_query.strip()
-
-            return (
-                f"Thanks! I found your Order ID as "
-                f"'{self.order_id}'.\n\n"
-                f"Please tell me your concern regarding the order."
-            )
-
         # Actual Query Processing
         response = self.query_response(
             order_id=self.order_id,
@@ -224,9 +213,9 @@ if "messages" not in st.session_state:
 
 # Display Previous Messages
 for message in st.session_state.messages:
-
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
+
 # User Input
 user_query = st.chat_input("Type your message here...")
 
