@@ -27,7 +27,8 @@ llm = ChatGroq(
     temperature = 0,                                               # Temperature setting to '0', for consistent and deterministic responses
     max_tokens = 512,                                              # maximum number of tokens in the output
     max_retries=2,
-    timeout=None)
+    timeout=None,
+    handle_parsing_errors = True)
 
 api = HfApi(token=os.getenv("HF_TOKEN"))
 DATABASE_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db"
