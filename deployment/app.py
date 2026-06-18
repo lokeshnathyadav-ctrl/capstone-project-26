@@ -78,7 +78,7 @@ def order_query(inputs):
     Input is a order context obtained from the SQL Agent.
 
     ### Response:
-    A raw response
+    A raw response as the output
     """
     
     prompt = f""" 
@@ -142,7 +142,7 @@ chat_agent = initialize_agent(
     llm=llm,
     agent=AgentType.CONVERSATIONAL_REACT_DESCRIPTION,
     verbose=False,
-    memory=memory,)
+    memory=memory,
     handle_parsing_errors=True)
 
 # Chatbot Class
