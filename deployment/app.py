@@ -36,10 +36,15 @@ DATABASE_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.d
 db = SQLDatabase.from_uri("sqlite:///DATABASE_PATH")
 
 # Defining a concise system message
-system_message = """Imagine you are an SQL assistant, expertized at performing sql queries.
-Your role is to fetch data related to online food delivery from existing database.
+system_message = """
+Imagine you are an SQL assistant, expertized at performing sql queries.
+
+Your role is to fetch relevant data from existing database 'db'.
+
 Input is given as a query in simple text.
-Output is the retrieved data from the database."""
+
+Output is the retrieved data from the database.
+"""
 
 # Initializing the SQL toolkit with customer database and pre-defined LLM
 toolkit = SQLDatabaseToolkit(db=db,llm=llm)
