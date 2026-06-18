@@ -139,8 +139,8 @@ chat_agent = initialize_agent(
     llm=llm,
     agent=AgentType.CONVERSATIONAL_REACT_DESCRIPTION,
     verbose=False,
-    memory=memory,
-    handle_parsing_errors=True)
+    memory=memory,)
+#    handle_parsing_errors=True)
 
 # Chatbot Class
 class Chatbot:
@@ -160,7 +160,19 @@ class Chatbot:
     # Defining a query response function to execute and run the built chat agent
     def query_response(self, order_id: str, user_query: str) -> str:
         # Fetch order information based on given order_id
+
+        
+        
+        
+        
+        
         order_details = db_agent.invoke(f"Fetch the order information related to Order ID '{order_id}' in a list")
+
+        
+        
+        
+        
+        
         # Normalize to list
         if isinstance(order_details["output"], dict) and "items" in order_details["output"]:
             order_results = order_details["output"]["items"]
@@ -208,7 +220,24 @@ class Chatbot:
                 f"Please tell me your concern regarding the order."
             )
         # Actual Query Processing
+
+        
+        
+        
+        
+        
+        
+        
         response = self.query_response(
+
+            
+            
+            
+            
+            
+            
+            
+            
             order_id=self.order_id,
             user_query=user_query
         )
@@ -249,8 +278,24 @@ if user_query:
         st.markdown(user_query)
 
     # Generate Bot Response
+
+    
+    
+    
+    
+    
+    
+    
     response = st.session_state.bot.chat(user_query)
 
+
+    
+    
+    
+    
+    
+    
+    
     # Store Assistant Response
     st.session_state.messages.append(
         {
