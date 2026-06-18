@@ -117,14 +117,16 @@ class Answering_Tool:
         """
         Polish a raw response into a user-friendly answer.
         Args:
-        - raw_response(str): The raw response to polish
+        - raw_response(str): The raw response to polish.
         Returns: 
-        - str: The polished answere
+        - str: The polished answer
         """
+        raw_response = order_query_tool.invoke(f"Order context")  
         doc = self.nlp(raw_response)
-        polished_response = raw_response + "."
-
-        return polished_response
+        polished_response = ""
+        for sent in doc.sents:
+            polished_response+= sent.text.title() + " "
+        return polished_response.strip()
 
 answer_tool = Tool(
     name = "PolishedResponses",
@@ -163,19 +165,7 @@ class Chatbot:
     # Defining a query response function to execute and run the built chat agent
     def query_response(self, user_query: str) -> str:
         # Fetch order information based on given order_id
-
-        
-        
-        
-        
-        
-        order_details = db_agent.invoke(f"Fetch the order information related to Order ID '{self.order_id}' in a list")
-
-        
-        
-        
-        
-        
+        order_details = db_agent.invoke(f"Fetch the order information related to Order ID '{self.order_id}' in a list")       
         # Normalize to list
         if isinstance(order_details["output"], dict) and "items" in order_details["output"]:
             order_results = order_details["output"]["items"]
@@ -197,7 +187,6 @@ class Chatbot:
         4. Show the result got from the step: 3 as output.
         """
         response = chat_agent.run(agent_prompt)
-#        print(response)
         return response
     
     # Main Chat Function
@@ -224,36 +213,13 @@ class Chatbot:
                 f"Please tell me your concern regarding the order."
             )
 
-        # Actual Query Processing
-
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        response = self.query_response(
-
-            
-            
-            
-            
-            
-            
-            
-            
-            
-#            order_id=self.order_id,
+        # Actual Query Processing 
+        response = self.query_response(       
+            order_id=self.order_id,
             user_query=user_query
         )
 
         return response   
-
        
 # Streamlit UI
 st.title("🍔 FoodHub Delivery ChatBot")
