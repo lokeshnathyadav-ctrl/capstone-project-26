@@ -20,6 +20,7 @@ from langchain.utilities import SerpAPIWrapper
 from langchain.memory import ConversationBufferMemory
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
+
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 llm = ChatGroq(
     model = "meta-llama/llama-4-scout-17b-16e-instruct",           # Name of the chat model
@@ -121,16 +122,6 @@ answer_tool = Tool(
     func = Answering_Tool,
     description = "Modifies the raw responses obtained from order query tool into polished user-friendly responses.")
 
-order_query_tool = Tool(
-    name = "OrderQueryTool",
-    func = order_query,
-    description = "Understands the context of an user query and match with order related information to generate a raw response.")
-
-answer_tool = Tool(
-    name = "PolishedResponses",
-    func = Answering_Tool,
-    description = "Modifies the raw responses obtained from order query tool into polished user-friendly responses.")
-
 # Initialize Tools & Agent
 tools = [order_query_tool, answer_tool]
 
@@ -161,12 +152,10 @@ class Chatbot:
             "Could you please share the Order ID you're searching for?"
         )
 
-    # Fetch Order Details
-   
+    # Fetch Order Details   
     def get_order_details(self, order_id):
 
         try:
-
             order_details = db_agent.invoke(
                 f"Fetch the order information related to "
                 f"Order ID '{order_id}' in a list"
@@ -192,13 +181,14 @@ class Chatbot:
             return []
 
     # Generate Agent Response
-    def query_response(self, order_id:str, user_query:str) -> str:
+    def query_response(self, order_id, user_query):
 
         order_results = self.get_order_details(order_id)
 
         agent_prompt = f"""
         The user is querying for an order with Order ID '{order_id}'.
-        The 'db_agent' successfully retrieved the Order Details from the database.
+        
+        The 'db_agent' successfully retrieved the Order Details from the database. Find the user query and order details below:
 
         User Query:
         '{user_query}'
@@ -210,7 +200,7 @@ class Chatbot:
         1. Understand the user's concern related to the order.
         2. Use the order details to generate a raw response to a user query using the 'OrderQueryTool'.
         3. Later polish the gererated raw response using 'PolishedResponses' tool and pass the final response as reply to the user query. 
-        4. If the order is unavailable, respond politely using the 'PolishedResponses' tool and pass the response as reply to the user query.
+        4. If the order is unavailable, respond politely using the 'PolishedResponses' and pass the response as reply to the user query.
         """
 
         try:
