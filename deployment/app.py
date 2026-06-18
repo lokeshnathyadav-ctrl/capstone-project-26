@@ -198,7 +198,7 @@ class Chatbot:
         """
         response = chat_agent.run(agent_prompt)
 #        print(response)
-        return response["choices"][0]["text"].strip()
+        return response
     
     # Main Chat Function
     def chat(self, user_query):
