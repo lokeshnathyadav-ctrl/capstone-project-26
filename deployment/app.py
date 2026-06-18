@@ -27,39 +27,20 @@ llm = ChatGroq(
     temperature = 0,                                               # Temperature setting to '0', for consistent and deterministic responses
     max_tokens = 512,                                              # maximum number of tokens in the output
     max_retries=2,
-    timeout=None,)
-#    handle_parsing_errors = True)
+    timeout=None)
 
 api = HfApi(token=os.getenv("HF_TOKEN"))
 DATABASE_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db"
 
-# Initializing SQL database object
-db = SQLDatabase.from_uri("sqlite:///DATABASE_PATH")
-
-# Defining a concise system message
-system_message = """
-Imagine you are an SQL assistant, expertized at performing sql queries.
-
-Your role is to fetch relevant data from existing database 'db'.
-
-Input is given as a query in simple text.
-
-Output is the retrieved data from the database.
-"""
-
-# Initializing the SQL toolkit with customer database and pre-defined LLM
-toolkit = SQLDatabaseToolkit(db=db,llm=llm)
-
-# Create the SQL agent with the system message
+cstmr_db = SQLDatabase.from_uri("sqlite:///DATABASE_PATH")
 db_agent = create_sql_agent(
-    llm = llm,
-    toolkit = toolkit,
-    verbose = False,
-#    handle_parsing_errors = True,
-    system_message=SystemMessage(system_message)) 
+    llm,
+    db = cstmr_db,
+    agent_type = "openai-tools"
+    verbose = False) 
 
 # Defining a function to build a order query tool
-def order_query(inputs) -> list:
+def order_query(inputs):
     """ 
     Takes the order context from the SQL agent and generate a raw response for the query
     Accepts a dict of order related information and the user's query.
@@ -74,26 +55,34 @@ def order_query(inputs) -> list:
         user_query = ""
 
     system_prompt = """
-    You are an AI powered response generator. Your role is to generate a raw response for a given input.
+    Below is an instruction that describes the task, paired with an input that provides further context. Write a response that appropriately completes the request.
+
+    ### Instruction:
+    To generate a raw response for a given input.
+
+    ### Input:
     Input is a order context obtained from the SQL Agent.
-    Understand the context of the provided input and frame a raw response as output.
 
-    When crafting a raw response:
-    1. Cross check if the order information is relevant to user query or not.
-    2. Do not produce a raw response if the context provided to you doesn't match the user's query.
-    3. In such case give output as "Invalid Request: Try again."
-
+    ### Response:
+    A raw response
     """
-    prompt = f"Generate one raw response related to: '{order_results}' considering the user query: '{user_query}'."
-    response = llm.predict_messages(
-        [
-            SystemMessage(content=system_prompt),
-            HumanMessage(content=prompt)
-        ]
-    )
-    raw_response = response.content.strip()
-    return raw_response
+    
+    prompt = f""" 
 
+    User Query:
+    '{user_query}'
+
+    Order Details:
+    '{order_results}'
+    """
+    try:
+        raw_response = llm.predict_messages(
+            [SystemMessage(content=system_prompt),
+             HumanMessage(content=prompt)])
+        return raw_response
+    except Exception as e:
+        return "Sorry! Something went wrong while processing your request." 
+       
 order_query_tool = Tool(
     name = "OrderQueryTool",
     func = order_query,
@@ -140,7 +129,7 @@ chat_agent = initialize_agent(
     agent=AgentType.CONVERSATIONAL_REACT_DESCRIPTION,
     verbose=False,
     memory=memory,)
-#    handle_parsing_errors=True)
+    handle_parsing_errors=True)
 
 # Chatbot Class
 class Chatbot:
@@ -158,7 +147,7 @@ class Chatbot:
             "Could you please share the Order ID you're searching for?"
         )
     # Defining a query response function to execute and run the built chat agent
-    def query_response(self, order_id: str, user_query: str) -> str:
+    def query_response(self, user_query: str) -> str:
         # Fetch order information based on given order_id
 
         
@@ -166,7 +155,7 @@ class Chatbot:
         
         
         
-        order_details = db_agent.invoke(f"Fetch the order information related to Order ID '{order_id}' in a list")
+        order_details = db_agent.invoke(f"Fetch the order information related to Order ID '{self.order_id}' in a list")
 
         
         
@@ -180,9 +169,10 @@ class Chatbot:
             order_results = [i.strip() for i in order_details["output"].split(",")]
         else:
             order_results = order_details["output"]
+        
         # Agent Prompt
         agent_prompt = f"""
-        The user querying for a particular order with Order ID, '{order_id}'.
+        The user querying for a particular order with Order ID, '{self.order_id}'.
         The user's query is '{user_query}'. 
         The details relevant to that particular order and user query are: '{order_results}'.
     
@@ -193,11 +183,10 @@ class Chatbot:
         4. Show the result got from the step: 3 as output.
         """
         response = chat_agent.run(agent_prompt)
-        print(response)
-        return response
+#        print(response)
+        return response["choices"][0]["text"].strip()
     
-
-   # Main Chat Function
+    # Main Chat Function
     def chat(self, user_query):
 
         self.chat_history.append(user_query)
@@ -209,6 +198,7 @@ class Chatbot:
                 f"{self.welcome_message}\n\n"
                 f"{self.ask_order_message}"
             )
+
         # If order_id not captured yet
         if self.order_id is None:
 
@@ -219,8 +209,13 @@ class Chatbot:
                 f"'{self.order_id}'.\n\n"
                 f"Please tell me your concern regarding the order."
             )
+
         # Actual Query Processing
 
+        
+        
+        
+        
         
         
         
@@ -238,12 +233,14 @@ class Chatbot:
             
             
             
-            order_id=self.order_id,
+            
+#            order_id=self.order_id,
             user_query=user_query
         )
 
-        return response
-        
+        return response   
+
+       
 # Streamlit UI
 st.title("🍔 FoodHub Delivery ChatBot")
 st.write("Welcome to FoodHub Chat Support Assistant!")
