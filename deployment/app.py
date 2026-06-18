@@ -151,65 +151,33 @@ class Chatbot:
         self.ask_order_message = (
             "Could you please share the Order ID you're searching for?"
         )
-
-    # Fetch Order Details   
-    def get_order_details(self, order_id):
-
-        try:
-            order_details = db_agent.invoke(
-                f"Fetch the order information related to "
-                f"Order ID '{order_id}' in a list"
-            )
-
-            output = order_details.get("output", [])
-
-            # Normalize outputs
-            if isinstance(output, dict) and "items" in output:
-                return output["items"]
-
-            elif isinstance(output, str):
-                return [i.strip() for i in output.split(",")]
-
-            elif isinstance(output, list):
-                return output
-
-            else:
-                return []
-
-        except Exception as e:
-            print(f"Database Error: {e}")
-            return []
-
-    # Generate Agent Response
-    def query_response(self, order_id, user_query):
-
-        order_results = self.get_order_details(order_id)
-
+    # Defining a query response function to execute and run the built chat agent
+    def query_response(order_id: str, user_query: str) -> str:
+        # Fetch order information based on given order_id
+        order_details = db_agent.invoke(f"Fetch the order information related to Order ID '{order_id}' in a list")
+        # Normalize to list
+        if isinstance(order_details["output"], dict) and "items" in order_details["output"]:
+            order_results = order_details["output"]["items"]
+        elif isinstance(order_details["output"],str):
+            order_results = [i.strip() for i in order_details["output"].split(",")]
+        else:
+            order_results = order_details["output"]
+        # Agent Prompt
         agent_prompt = f"""
-        The user is querying for an order with Order ID '{order_id}'.
-        
-        The 'db_agent' successfully retrieved the Order Details from the database. Find the user query and order details below:
-
-        User Query:
-        '{user_query}'
-
-        Order Details:
-        '{order_results}'
-
-        Instructions:
-        1. Understand the user's concern related to the order.
-        2. Use the order details to generate a raw response to a user query using the 'OrderQueryTool'.
-        3. Later polish the gererated raw response using 'PolishedResponses' tool and pass the final response as reply to the user query. 
-        4. If the order is unavailable, respond politely using the 'PolishedResponses' and pass the response as reply to the user query.
+        The user querying for a particular order with Order ID, '{order_id}'.
+        The user's query is '{user_query}'. 
+        The details relevant to that particular order and user query are: '{order_results}'.
+    
+        Here is the process to follow:
+        1. Confirm if the order information can match the expectation of an user query.
+        2. If yes, generate a suitable response that address the query. If no, respond: "Sorry! Order not found."
+        3. Pass the response generated in step: 2 to "Answering_Tool".
+        4. Show the result got from the step: 3 as output.
         """
-
-        try:
-            response = chat_agent.run(agent_prompt)
-            return response
-
-        except Exception as e:
-            print(f"Agent Error: {e}")
-            return "Sorry! Something went wrong while processing your request."
+        response = chat_agent.run(agent_prompt)
+        print(response)
+        return response
+    
 
    # Main Chat Function
     def chat(self, user_query):
@@ -242,10 +210,9 @@ class Chatbot:
         )
 
         return response
+        
 # Streamlit UI
-
 st.title("🍔 FoodHub Delivery ChatBot")
-
 st.write("Welcome to FoodHub Chat Support Assistant!")
 
 # Session State Initialization
