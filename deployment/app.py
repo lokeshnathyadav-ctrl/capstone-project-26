@@ -37,7 +37,7 @@ ORDERS_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/orders_table.csv"
 CONSUMERS_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/consumers_table.csv"
 DELIVERY_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/delivery_table.csv"
 # Establishing a connection with the provided database.
-connection = sqlite3.connect("hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db")
+connection = sqlite3.connect("customer_orders.db")
 # Appending the data with the provided 'customer_orders' database
 orders_df = pd.read_csv(ORDERS_PATH)
 consumers_df = pd.read_csv(CONSUMERS_PATH)
