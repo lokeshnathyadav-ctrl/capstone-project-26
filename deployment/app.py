@@ -45,7 +45,7 @@ delivery_df = pd.read_csv(DELIVERY_PATH)
 orders_df.to_sql('ORDERS_PATH',connection,if_exists='append',index=False)
 consumers_df.to_sql('CONSUMERS_PATH',connection,if_exists='append',index=False)
 delivery_df.to_sql('DELIVERY_PATH',connection,if_exists='append',index=False)
-cstmr_db = SQLDatabase.from_uri("sqlite:///hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db")
+cstmr_db = SQLDatabase.from_uri("sqlite:///customer_orders.db")
 
 db_agent = create_sql_agent(
     llm,
