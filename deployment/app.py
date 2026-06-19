@@ -167,7 +167,7 @@ class Chatbot:
                 f"Order ID '{order_id}' in a list"
             )
             output = order_details.get("output",[])
-            if isinstance(output,str):
+            if isinstance(output,dict) and "items" in output:
                 return output["items"]
             elif isinstance(output,str):
                 return[i.strip() for i in output.strip(",")]
