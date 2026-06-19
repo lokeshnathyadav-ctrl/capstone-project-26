@@ -170,11 +170,14 @@ class Chatbot:
             if isinstance(output,dict) and "items" in output:
                 return output["items"]
             elif isinstance(output,str):
-                return[i.strip() for i in output.strip(",")]
+                return[i.strip() for i in output.split(",")]
             elif isinstance(output,list):
                 return output
             else:
                 return []
+        except Exception as e:
+            print(f"Database Error: {e}")
+            return[]
     # Defining a query response function to execute and run the built chat agent
     def query_response(self, order_id, user_query):
         order_results = self.get_order_details(order_id)
