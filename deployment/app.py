@@ -201,7 +201,7 @@ class Chatbot:
             response = chat_agent.run(agent_prompt)
             return response
         except Exception as e:
-            return "Sorry! Something went wron while processing your request
+            return "Sorry! Something went wron while processing your request."
     
     # Main Chat Function
     def chat(self, user_query):
@@ -269,24 +269,7 @@ if user_query:
         st.markdown(user_query)
 
     # Generate Bot Response
-
-    
-    
-    
-    
-    
-    
-    
-    response = st.session_state.bot.chat(user_query)
-
-
-    
-    
-    
-    
-    
-    
-    
+    response = st.session_state.bot.chat(user_query)   
     # Store Assistant Response
     st.session_state.messages.append(
         {
