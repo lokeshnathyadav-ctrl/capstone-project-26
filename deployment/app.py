@@ -22,6 +22,14 @@ from langchain.memory import ConversationBufferMemory
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
 
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+llm = ChatGroq(
+    model = "meta-llama/llama-4-scout-17b-16e-instruct",           # Name of the chat model
+    temperature = 0,                                               # Temperature setting to '0', for consistent and deterministic responses
+    max_tokens = 512,                                              # maximum number of tokens in the output
+    max_retries=2,
+    timeout=None)
+
 api = HfApi(token=os.getenv("HF_TOKEN"))
 # Defining the path of the uploaded data in Hugging Face Hub
 DATABASE_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db"
@@ -39,14 +47,6 @@ consumers_df.to_sql('CONSUMERS_PATH',connection,if_exists='append',index=False)
 delivery_df.to_sql('DELIVERY_PATH',connection,if_exists='append',index=False)
 cstmr_db = SQLDatabase.from_uri("sqlite:///customer_orders.db")
 
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-llm = ChatGroq(
-    model = "meta-llama/llama-4-scout-17b-16e-instruct",           # Name of the chat model
-    temperature = 0,                                               # Temperature setting to '0', for consistent and deterministic responses
-    max_tokens = 512,                                              # maximum number of tokens in the output
-    max_retries=2,
-    timeout=None)
-
 db_agent = create_sql_agent(
     llm,
     db = cstmr_db,
@@ -59,14 +59,12 @@ def order_query(inputs):
     Takes the order context from the SQL agent and generate a raw response for the query
     Accepts a dict of order related information and the user's query.
     """
-    # Handling a dict input
-    if isinstance(inputs,dict):
-        user_query = inputs.get("user_query", "")
-        order_results = inputs.get("order_results", [])    
+    if isinstance(order_details["output"], dict) and "items" in order_details["output"]:
+        order_results = order_details["output"]["items"]
+    elif isinstance(order_details["output"],str):
+        order_results = [i.strip() for i in order_details["output"].split(",")]
     else:
-        # To Handle a string input fallback
-        order_results = [i.strip() for i in str(inputs).split(",")]
-        user_query = ""
+        order_results = order_details["output"]
 
     system_prompt = """
     Below is an instruction that describes the task, paired with an input that provides further context. Write a response that appropriately completes the request.
@@ -120,8 +118,7 @@ class Answering_Tool:
         - raw_response(str): The raw response to polish.
         Returns: 
         - str: The polished answer
-        """
-        raw_response = order_query_tool.invoke(f"Order context")  
+        """  
         doc = self.nlp(raw_response)
         polished_response = ""
         for sent in doc.sents:
@@ -162,32 +159,46 @@ class Chatbot:
         self.ask_order_message = (
             "Could you please share the Order ID you're searching for?"
         )
+    # Fetch Order Details
+    def get_order_details(self,order_id):
+        try:
+            order_details = dg_agent.invoke(
+                f"Fetch the order information related to "
+                f"Order ID '{order_id}' in a list"
+            )
+            output = order_details.get("output",[])
+            if isinstance(output,str):
+                return output["items"]
+            elif isinstance(output,str):
+                return[i.strip() for i in output.strip(",")]
+            elif isinstance(output,list):
+                return output
+            else:
+                return []
     # Defining a query response function to execute and run the built chat agent
-    def query_response(self, user_query: str) -> str:
-        # Fetch order information based on given order_id
-        order_details = db_agent.invoke(f"Fetch the order information related to Order ID '{self.order_id}' in a list")       
-        # Normalize to list
-        if isinstance(order_details["output"], dict) and "items" in order_details["output"]:
-            order_results = order_details["output"]["items"]
-        elif isinstance(order_details["output"],str):
-            order_results = [i.strip() for i in order_details["output"].split(",")]
-        else:
-            order_results = order_details["output"]
-        
+    def query_response(self, order_id, user_query):
+        order_results = self.get_order_details(order_id)
+        if not order_results:
+            return "Sorry! Order not found."
+            
+             
         # Agent Prompt
         agent_prompt = f"""
-        The user querying for a particular order with Order ID, '{self.order_id}'.
+        The user querying for a particular order with Order ID, '{order_id}'.
         The user's query is '{user_query}'. 
         The details relevant to that particular order and user query are: '{order_results}'.
     
         Here is the process to follow:
         1. Confirm if the order information can match the expectation of an user query.
-        2. If yes, generate a suitable response that address the query. If no, respond: "Sorry! Order not found."
+        2. If yes, generate a suitable response that address the query. If no respond politely to the user.
         3. Pass the response generated in step: 2 to "Answering_Tool".
         4. Show the result got from the step: 3 as output.
         """
-        response = chat_agent.run(agent_prompt)
-        return response
+        try:
+            response = chat_agent.run(agent_prompt)
+            return response
+        except Exception as e:
+            return "Sorry! Something went wron while processing your request
     
     # Main Chat Function
     def chat(self, user_query):
@@ -215,7 +226,7 @@ class Chatbot:
 
         # Actual Query Processing 
         response = self.query_response(       
-#            order_id=self.order_id,
+            order_id=self.order_id,
             user_query=user_query
         )
 
