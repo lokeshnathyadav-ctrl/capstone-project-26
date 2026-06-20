@@ -9,6 +9,7 @@ import streamlit as st
 from huggingface_hub import login,HfApi
 from langchain_groq import ChatGroq
 from langchain_core.messages import SystemMessage, HumanMessage
+#from langchain.agents import create_agent
 from langchain import SQLDatabase, hub
 from langchain_community.agent_toolkits.sql.base import create_sql_agent
 from langchain_community.utilities import SQLDatabase
@@ -16,7 +17,7 @@ from langchain.agents.agent_toolkits import SQLDatabaseToolkit
 from langchain.agents.agent_types import AgentType
 from langchain.agents import initialize_agent, AgentType, load_tools, Tool
 from langchain_community.agent_toolkits.load_tools import load_tools
-from langchain.utilities import SerpAPIWrapper
+from langchain_community.utilities import SerpAPIWrapper
 from langchain.memory import ConversationBufferMemory
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
