@@ -31,13 +31,11 @@ llm = ChatGroq(
     timeout=None)
 
 api = HfApi(token=os.getenv("HF_TOKEN"))
-DATABASE_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db"
-connection = sqlite3.connect(DATABASE_PATH)
+connection = sqlite3.connect("hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db")
 DATASET_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/FoodHub_Go.csv"
 df = pd.read_csv(DATASET_PATH)
 df.to_sql('FoodHub_Go',connection,if_exists='append',index=False)
-connection = sqlite3.connect("customer_orders.db")
-db = SQLDatabase.from_uri("sqlite:///datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db")
+db = SQLDatabase.from_uri("sqlite:///customer_orders.db")
 
 system_message = """
 Below is an instruction that describes the task, paired with an input that provides further context.
@@ -150,7 +148,7 @@ class Chatbot:
     # Fetch Order Details
     def get_order_details(self,order_id):
         try:
-            order_details = dg_agent.invoke(f"Fetch the order information related to Order ID '{self.order_id}' in the form a JSON.")
+            order_details = dg_agent.invoke(f"Fetch the order information related to Order ID '{self.order_id}'")
             output = order_details.get("output",[])
             if isinstance(output,dict) and "items" in output:
                 return output["items"]
@@ -162,7 +160,7 @@ class Chatbot:
                 return []
         except Exception as e:
             print(f"Database Error: {e}")
-            return[]
+            return []
     # Defining a query response function to execute and run the built chat agent
     def query_response(self, order_id, user_query):
         order_results = self.get_order_details(order_id)
