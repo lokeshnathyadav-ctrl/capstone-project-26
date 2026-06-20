@@ -1,10 +1,10 @@
-
 import json
 import os 
 import spacy
 import sqlite3 
 import getpass
 import requests
+from datasetsimport load_dataset
 import pandas as pd
 import streamlit as st
 from huggingface_hub import login,HfApi
@@ -31,107 +31,106 @@ llm = ChatGroq(
     timeout=None)
 
 api = HfApi(token=os.getenv("HF_TOKEN"))
-# Defining the path of the uploaded data in Hugging Face Hub
-#DATABASE_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db"
-ORDERS_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/orders_table.csv"
-CONSUMERS_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/consumers_table.csv"
-DELIVERY_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/delivery_table.csv"
-# Establishing a connection with the provided database.
+DATABASE_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db"
+connection = sqlite3.connect(DATABASE_PATH)
+DATASET_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/FoodHub_Go.csv"
+df = pd.read_csv(DATASET_PATH)
+df.to_sql('FoodHub_Go',connection,if_exists='append',index=False)
 connection = sqlite3.connect("customer_orders.db")
-# Appending the data with the provided 'customer_orders' database
-orders_df = pd.read_csv(ORDERS_PATH)
-consumers_df = pd.read_csv(CONSUMERS_PATH)
-delivery_df = pd.read_csv(DELIVERY_PATH)
-orders_df.to_sql('ORDERS_PATH',connection,if_exists='append',index=False)
-consumers_df.to_sql('CONSUMERS_PATH',connection,if_exists='append',index=False)
-delivery_df.to_sql('DELIVERY_PATH',connection,if_exists='append',index=False)
-cstmr_db = SQLDatabase.from_uri("sqlite:///customer_orders.db")
+db = SQLDatabase.from_uri("sqlite:///datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db")
+
+system_message = """
+Below is an instruction that describes the task, paired with an input that provides further context.
+Write a response that appropriately completes the request.
+
+### Instruction:
+Fetch and retrieve the order related details in the form of a JSON with every field in the fetched data beina a string.
+
+###Input:
+Order number/ID is given as input where the agent will fetch data related to Order ID from the provided database.
+
+### Response:
+"""
+toolkit = SQLDatabaseToolkit(db=db,llm=llm)
 
 db_agent = create_sql_agent(
-    llm,
-    db = cstmr_db,
+    llm=llm,
+    db = db,
+    toolkit=toolkit,
     agent_type = "openai-tools",
-    verbose = False) 
+    handle_parsing_errors = True,
+    verbose = False,
+    system_message= SystemMessage(system_message))
 
 # Defining a function to build a order query tool
 def order_query(inputs):
     """ 
-    Takes the order context from the SQL agent and generate a raw response for the query
-    Accepts a dict of order related information and the user's query.
+    Takes the order details as inputs and generates a raw response for the question put by the users.
     """
-    if isinstance(order_details["output"], dict) and "items" in order_details["output"]:
-        order_results = order_details["output"]["items"]
-    elif isinstance(order_details["output"],str):
-        order_results = [i.strip() for i in order_details["output"].split(",")]
+    if isinstance(inputs, dict):
+        order_results = inputs.get("order_info", [])
+        user_query = inputs.get("user_query","")
     else:
-        order_results = order_details["output"]
+        order_results = [i.strip() for i in str(inputs).split(",")]
+        user_query = ""
 
     system_prompt = """
     Below is an instruction that describes the task, paired with an input that provides further context. Write a response that appropriately completes the request.
 
     ### Instruction:
-    To generate a raw response for a given input.
+    Generate a raw response to the user, querying regard to his order related information. Understand the context present in the user query and generate a raw response by including the exact information he is querying for.  
 
     ### Input:
-    Input is a order context obtained from the SQL Agent.
+    Input is the JSON obtained from the output of 'db_agent'
 
     ### Response:
-    A raw response as the output
+    A raw response which include the context of the user query paired with the necessary order information he's looking for.
     """
     
-    prompt = f""" 
+    prompt = """
+    Generate one raw response related to the order '{order_id} and the user query '{user_query}'.
 
-    User Query:
-    '{user_query}'
-
+    While generating the raw reponse take help of these order related information to match the context present in user query with the appropriate order related information.
     Order Details:
     '{order_results}'
     """
-    try:
         raw_response = llm.predict_messages(
             [SystemMessage(content=system_prompt),
              HumanMessage(content=prompt)])
+        
         return raw_response
-    except Exception as e:
-        return "Sorry! Something went wrong while processing your request." 
        
 order_query_tool = Tool(
     name = "OrderQueryTool",
     func = order_query,
-    description = "Understands the context of an user query and match with order related information to generate a raw response.")
+    description = "Generates a raw response for the user query by including the appropriate retreived order information.")
 
 # Defining a function to refine raw responses into precise, polished answers to users
-class Answering_Tool:
-    def init(self, language_model = "en_core_web_sm"):
-        """
-        Initialize the Answering_Tool with a SpaCy language model.
+nlp = spacy.load('en_core_web_sm')
+def answer_query(raw_response):
+    """
+    Polishes a raw response by tokenizing, removing stop words and punctuation, 
+    lemmatizing words, and reconstructing a simplified sentence.
+    Args:
+        raw_response (str): The input sentence obtained from 'OrderQueryTool' to be polished.
+    Returns:
+        str: The polished sentence meant to be replied to the user as response.
+    """
+    doc = nlp(raw_response)
+    polished_tokens = []
+    for token in doc:
+        if not token.is_stop and not token.is_punct:                   # Check if the token is not a stop word and not punctuation
+            polished_tokens.append(token.lemma_)                       # Lemmatize the token to its base form  
+    polished_response = ' '.join(polished_tokens)                     # Reconstruct the polished sentence
+    return polished_response
 
-        Args:
-        - language_model(str): The SpaCy language model to use (default:"en_core_web_sm")
-        """
-        self.nlp=spacy.load(language_model)
-
-    def polish_answer(self,raw_response):
-        """
-        Polish a raw response into a user-friendly answer.
-        Args:
-        - raw_response(str): The raw response to polish.
-        Returns: 
-        - str: The polished answer
-        """  
-        doc = self.nlp(raw_response)
-        polished_response = ""
-        for sent in doc.sents:
-            polished_response += sent.text.title() + " "
-        return polished_response.strip()
-
-answer_tool = Tool(
+answer_query_tool = Tool(
     name = "PolishedResponses",
     func = Answering_Tool,
-    description = "Modifies the raw responses obtained from order query tool into polished user-friendly responses.")
+    description = "Polishes the raw response which are obtained from calling the 'OrderQueryTool' into precise, clear and user-friendly responses.")
 
 # Initialize Tools & Agent
-tools = [order_query_tool, answer_tool]
+tools = [order_query_tool, answer_query_tool]
 
 # Defining the memory for 'conversational_react_description" agent type
 memory = ConversationBufferMemory(memory_key="chat_history")
@@ -146,26 +145,15 @@ chat_agent = initialize_agent(
 
 # Chatbot Class
 class Chatbot:
-
     def __init__(self):
-
         self.chat_history = []
         self.order_id = None
-
-        self.welcome_message = (
-            "Hello! Welcome to Food Delivery Support 🍴"
-        )
-
-        self.ask_order_message = (
-            "Could you please share the Order ID you're searching for?"
-        )
+        self.welcome_message = ("Hello! Welcome to Food Delivery Support 🍴")
+        self.ask_order_message = ("Could you please share the Order ID you're searching for?")
     # Fetch Order Details
     def get_order_details(self,order_id):
         try:
-            order_details = dg_agent.invoke(
-                f"Fetch the order information related to "
-                f"Order ID '{order_id}' in a list"
-            )
+            order_details = dg_agent.invoke(f"Fetch the order information related to Order ID '{self.order_id}' in the form a JSON.")
             output = order_details.get("output",[])
             if isinstance(output,dict) and "items" in output:
                 return output["items"]
@@ -182,20 +170,18 @@ class Chatbot:
     def query_response(self, order_id, user_query):
         order_results = self.get_order_details(order_id)
         if not order_results:
-            return "Sorry! Order not found."
-            
-             
+            return "Sorry! Order not found."     
         # Agent Prompt
         agent_prompt = f"""
-        The user querying for a particular order with Order ID, '{order_id}'.
+        The user querying for a particular order with Order ID, '{self.order_id}'.
         The user's query is '{user_query}'. 
         The details relevant to that particular order and user query are: '{order_results}'.
     
         Here is the process to follow:
-        1. Confirm if the order information can match the expectation of an user query.
-        2. If yes, generate a suitable response that address the query. If no respond politely to the user.
-        3. Pass the response generated in step: 2 to "Answering_Tool".
-        4. Show the result got from the step: 3 as output.
+        1. Confirm if the order information can match the expectation of an user query. If true, go to step: 2 below:
+        2. Generate a suitable raw response that appropriates the context present in the user query.
+        3. Pass the response generated in step: 2 by passing it to 'PolishedResponses', where a concise and user-friendly response is generated.
+        4. Reply the user with the generated response obtained in the step:3
         """
         try:
             response = chat_agent.run(agent_prompt)
@@ -205,34 +191,23 @@ class Chatbot:
     
     # Main Chat Function
     def chat(self, user_query):
-
         self.chat_history.append(user_query)
-
         # First Interaction
         if len(self.chat_history) == 1:
-
             return (
                 f"{self.welcome_message}\n\n"
-                f"{self.ask_order_message}"
-            )
-
+                f"{self.ask_order_message}")
         # If order_id not captured yet
         if self.order_id is None:
-
             self.order_id = user_query.strip()
-
             return (
-                f"Thanks! I found your Order ID as "
+                f"Thanks! I see you shared your Order ID as "
                 f"'{self.order_id}'.\n\n"
-                f"Please tell me your concern regarding the order."
-            )
-
+                f"Please tell me your concern regarding the order.")
         # Actual Query Processing 
         response = self.query_response(       
             order_id=self.order_id,
-            user_query=user_query
-        )
-
+            user_query=user_query)
         return response   
        
 # Streamlit UI
