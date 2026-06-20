@@ -93,11 +93,8 @@ def order_query(inputs):
     Order Details:
     '{order_results}'
     """
-        raw_response = llm.predict_messages(
-            [SystemMessage(content=system_prompt),
-             HumanMessage(content=prompt)])
-        
-        return raw_response
+    raw_response = llm.predict_messages([SystemMessage(content=system_prompt),HumanMessage(content=prompt)])
+    return raw_response
        
 order_query_tool = Tool(
     name = "OrderQueryTool",
