@@ -33,7 +33,7 @@ llm = ChatGroq(
     max_retries=2,
     timeout=None)
 
-db = SQLDatabase.from_uri("sqlite:///customer_orders")
+db = SQLDatabase.from_uri("sqlite:///customer_orders.db")
 system_message = """
 Below is an instruction that describes the task, paired with an input that provides further context.
 Write a response that appropriately completes the request.
