@@ -21,8 +21,11 @@ from langchain_community.utilities import SerpAPIWrapper
 from langchain.memory import ConversationBufferMemory
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
+from huggingface_hub import login,HfApi
 
+api = HfApi(token=os.getenv("HF_TOKEN"))
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
 llm = ChatGroq(
     model = "meta-llama/llama-4-scout-17b-16e-instruct",           # Name of the chat model
     temperature = 0,                                               # Temperature setting to '0', for consistent and deterministic responses
@@ -30,13 +33,7 @@ llm = ChatGroq(
     max_retries=2,
     timeout=None)
 
-api = HfApi(token=os.getenv("HF_TOKEN"))
-connection = sqlite3.connect("hf://datasets/Lokeshnathy/foodhub-orders-data/customer_orders.db")
-DATASET_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/FoodHub_Go.csv"
-df = pd.read_csv(DATASET_PATH)
-df.to_sql('FoodHub_Go',connection,if_exists='append',index=False)
-db = SQLDatabase.from_uri("sqlite:///customer_orders.db")
-
+db = SQLDatabase.from_uri("sqlite:///customer_orders")
 system_message = """
 Below is an instruction that describes the task, paired with an input that provides further context.
 Write a response that appropriately completes the request.
