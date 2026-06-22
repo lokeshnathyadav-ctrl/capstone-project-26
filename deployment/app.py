@@ -122,7 +122,7 @@ answer_query_tool = Tool(
     name = "PolishedResponses",
     func = answer_query,
     description = "Polishes the raw response which are obtained from calling the 'OrderQueryTool' into precise, clear and user-friendly responses.")
-
+#####################################################-----104----#####################################################################
 # Initialize Tools & Agent
 tools = [order_query_tool, answer_query_tool]
 
@@ -144,10 +144,11 @@ class Chatbot:
         self.order_id = None
         self.welcome_message = ("Hello! Welcome to Food Delivery Support 🍴")
         self.ask_order_message = ("Could you please share the Order ID you're searching for?")
+##############------------------------------------------------------------------------------------#######################
     # Fetch Order Details
     def get_order_details(self,order_id):
         try:
-            order_details = dg_agent.invoke(f"Fetch the order information related to Order ID '{self.order_id}'")
+            order_details = db_agent.invoke(f"Fetch the order information related to Order ID '{self.order_id}'")
             output = order_details.get("output",[])
             if isinstance(output,dict) and "items" in output:
                 return output["items"]
