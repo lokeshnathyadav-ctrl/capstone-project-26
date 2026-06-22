@@ -50,7 +50,6 @@ toolkit = SQLDatabaseToolkit(db=db,llm=llm)
 
 db_agent = create_sql_agent(
     llm=llm,
-    db = db,
     toolkit=toolkit,
     agent_type = "openai-tools",
     handle_parsing_errors = True,
