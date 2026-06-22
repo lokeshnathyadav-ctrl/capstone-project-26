@@ -1,9 +1,10 @@
 import json
 import os 
-import spacy
 import sqlite3 
 import getpass
 import requests
+import spacy
+#import en_core_web_sm
 import pandas as pd
 import streamlit as st
 from huggingface_hub import login,HfApi
@@ -97,7 +98,7 @@ order_query_tool = Tool(
     description = "Generates a raw response for the user query by including the appropriate retreived order information.")
 
 # Defining a function to refine raw responses into precise, polished answers to users
-nlp = spacy.load('en_core_web_sm')
+
 def answer_query(raw_response):
     """
     Polishes a raw response by tokenizing, removing stop words and punctuation, 
@@ -107,6 +108,8 @@ def answer_query(raw_response):
     Returns:
         str: The polished sentence meant to be replied to the user as response.
     """
+    nlp = spacy.load('en_core_web_sm')
+#    nlp = en_core_web_sm.load()
     doc = nlp(raw_response)
     polished_tokens = []
     for token in doc:
