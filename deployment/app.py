@@ -169,7 +169,7 @@ class Chatbot:
         # Agent Prompt
         agent_prompt = f"""
         The user querying for a particular order with Order ID, '{self.order_id}'.
-        The user's query is '{user_query}'. 
+        The user's query is '{self.user_query}'. 
         The details relevant to that particular order and user query are: '{order_results}'.
     
         Here is the process to follow:
@@ -182,7 +182,19 @@ class Chatbot:
             response = chat_agent.run(agent_prompt)
             return response
         except Exception as e:
+
+            
+            
+    
+            
+            
             return "Sorry! Something went wrong while processing your request."
+    
+
+    
+    
+    
+    
     
     # Main Chat Function
     def chat(self, user_query):
