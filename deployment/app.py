@@ -132,7 +132,7 @@ memory = ConversationBufferMemory(memory_key="chat_history")
 chat_agent = initialize_agent(
     tools=tools,
     llm=llm,
-    agent=AgentType.CONVERSATIONAL_REACT_DESCRIPTION,
+    agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
     verbose=False,
     memory=memory,
     handle_parsing_errors=True)
@@ -182,7 +182,7 @@ class Chatbot:
             response = chat_agent.run(agent_prompt)
             return response
         except Exception as e:
-            return "Sorry! Something went wron while processing your request."
+            return "Sorry! Something went wrong while processing your request."
     
     # Main Chat Function
     def chat(self, user_query):
