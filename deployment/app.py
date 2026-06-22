@@ -120,7 +120,7 @@ def answer_query(raw_response):
 
 answer_query_tool = Tool(
     name = "PolishedResponses",
-    func = Answering_Tool,
+    func = answer_query,
     description = "Polishes the raw response which are obtained from calling the 'OrderQueryTool' into precise, clear and user-friendly responses.")
 
 # Initialize Tools & Agent
