@@ -148,7 +148,7 @@ class Chatbot:
     # Fetch Order Details
     def get_order_details(self,order_id):
         try:
-            order_details = db_agent.invoke(f"Fetch the order information related to Order ID '{self.order_id}'")
+            order_details = db_agent.invoke(f"Fetch the order information related to Order ID '{order_id}'")
             output = order_details.get("output",[])
             if isinstance(output,dict) and "items" in output:
                 return output["items"]
@@ -168,8 +168,8 @@ class Chatbot:
             return "Sorry! Order not found."     
         # Agent Prompt
         agent_prompt = f"""
-        The user querying for a particular order with Order ID, '{self.order_id}'.
-        The user's query is '{self.user_query}'. 
+        The user querying for a particular order with Order ID, '{order_id}'.
+        The user's query is '{user_query}'. 
         The details relevant to that particular order and user query are: '{order_results}'.
     
         Here is the process to follow:
