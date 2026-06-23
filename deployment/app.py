@@ -123,20 +123,6 @@ answer_query_tool = Tool(
     func = answer_query,
     description = "Polishes the raw response which are obtained from calling the 'OrderQueryTool' into precise, clear and user-friendly responses.")
 #####################################################-----104----#####################################################################
-# Initialize Tools & Agent
-tools = [order_query_tool, answer_query_tool]
-
-# Defining the memory for 'conversational_react_description" agent type
-memory = ConversationBufferMemory(memory_key="chat_history")
-
-chat_agent = initialize_agent(
-    tools=tools,
-    llm=llm,
-    agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
-    verbose=False,
-    memory=memory,
-    handle_parsing_errors=True)
-
 # Chatbot Class
 class Chatbot:
     def __init__(self):
@@ -182,20 +168,9 @@ class Chatbot:
             response = chat_agent.run(agent_prompt)
             return response
         except Exception as e:
-
-            
-            
-    
-            
             
             return "Sorry! Something went wrong while processing your request."
-    
-
-    
-    
-    
-    
-    
+        
     # Main Chat Function
     def chat(self, user_query):
         self.chat_history.append(user_query)
@@ -210,13 +185,27 @@ class Chatbot:
             return (
                 f"Thanks! I see you shared your Order ID as "
                 f"'{self.order_id}'.\n\n"
-                f"Please tell me your concern regarding the order.")
+                f"Please tell me your concern with this order.")
         # Actual Query Processing 
         response = self.query_response(       
             order_id=self.order_id,
             user_query=user_query)
         return response   
-       
+
+# Initialize Tools & Agent
+tools = [order_query_tool, answer_query_tool]
+
+# Defining the memory for 'conversational_react_description" agent type
+memory = ConversationBufferMemory(memory_key="chat_history")
+
+chat_agent = initialize_agent(
+    tools=tools,
+    llm=llm,
+    agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
+    verbose=False,
+    memory=memory,
+    handle_parsing_errors=True)
+
 # Streamlit UI
 st.title("🍔 FoodHub Delivery ChatBot")
 st.write("Welcome to FoodHub Chat Support Assistant!")
