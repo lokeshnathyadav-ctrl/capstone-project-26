@@ -1,4 +1,4 @@
-
+import streamlit as st
 # Streamlit UI
 st.title("🍔 FoodHub Delivery ChatBot")
 st.write("Welcome to FoodHub Chat Support Assistant!")
