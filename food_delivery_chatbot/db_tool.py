@@ -31,7 +31,7 @@ Order number/ID is given as input where the agent will fetch data related to Ord
 """
 db_agent = create_sql_agent(
     llm=llm,
-    db=db
+    db=db,
     agent_type = "openai-tools",
     handle_parsing_errors = True,
     verbose = False,
