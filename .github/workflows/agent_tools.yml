@@ -127,7 +127,7 @@ jobs:
           
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
        
-        run: python food_delivery_chatbot/db_agent.py      
+        run: python food_delivery_chatbot/db_tool.py      
  
   # ---------------------------------------------------------
   # Agent Tools
