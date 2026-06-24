@@ -11,6 +11,7 @@ from langchain.agents.agent_toolkits import SQLDatabaseToolkit
 from langchain.agents.agent_types import AgentType
 from langchain.agents import initialize_agent, AgentType, load_tools, Tool
 from langchain_community.agent_toolkits.load_tools import load_tools
+from langchain_core.messages import SystemMessage, HumanMessage
 
 from llm import llm
 api = HfApi(token=os.getenv("HF_TOKEN"))

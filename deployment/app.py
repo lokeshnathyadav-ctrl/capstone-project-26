@@ -18,7 +18,6 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from langchain.memory import ConversationBufferMemory
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
-
 from llm import llm
 from db_tool import db_agent
 from tools import order_query, order_query_tool, answer_tool, answer_query_tool
