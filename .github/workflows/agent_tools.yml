@@ -45,45 +45,6 @@ jobs:
 
         run: python food_delivery_chatbot/data_register.py
 
-  # ---------------------------------------------------------
-  # Large Language Model
-  # ---------------------------------------------------------
-
-  llm:
-
-    runs-on: ubuntu-latest
-
-    steps:
-
-      - name: Checkout Repository
-
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-
-        uses: actions/setup-python@v4
-
-        with:
-
-          python-version: "3.10"
-
-      - name: Install Dependencies
-
-        run: |
-
-          python -m pip install --upgrade pip
-
-          pip install -r requirements.txt
-
-      - name: Large Language Model
-        
-        env:
-        
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-           
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-
-        run: python food_delivery_chatbot/llm.py
 
   # ---------------------------------------------------------
   # Data Base Tool
@@ -95,7 +56,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    needs: [register-data, llm] 
+    needs: [register-data] 
 
     steps:
 
@@ -139,7 +100,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    needs: [register-data, llm, db-tool]
+    needs: [register-data, db-tool]
 
     steps:
 
@@ -183,7 +144,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    needs: [register-data, llm, db-tool, tools]
+    needs: [register-data, db-tool, tools]
 
     steps:
 
@@ -223,7 +184,7 @@ jobs:
 
   deploy-hosting:
 
-    name: Agent tools
+    name: Hosting
 
     runs-on: ubuntu-latest
 
