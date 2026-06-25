@@ -37,7 +37,7 @@ import tools
 st.write(tools.order_query())
 st.write(tools.answer_query())
 import chat_agent
-st.write(chat_agent.Chatbot()
+st.write(chat_agent.Chatbot())
 #from llm import llm
 #from db_tool import db_agent, llm
 #from tools import order_query, order_query_tool, answer_query, answer_query_tool
