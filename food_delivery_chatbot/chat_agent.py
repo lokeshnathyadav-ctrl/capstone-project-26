@@ -16,7 +16,7 @@ import json
 import pandas as pd
 import sqlite3
 #from db_tool import llm
-from queryfunc import order_query, answer_query
+import queryfunc
 llm = ChatGroq(
     model = "meta-llama/llama-4-scout-17b-16e-instruct",           # Name of the chat model
     temperature = 0,                                               # Temperature setting to '0', for consistent and deterministic responses
