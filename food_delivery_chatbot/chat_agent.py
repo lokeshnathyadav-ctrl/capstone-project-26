@@ -19,9 +19,13 @@ import sqlite3
 from tools import order_query, answer_query, order_query_tool, answer_query_tool
 
 tools = [order_query_tool, answer_query_tool]
-
+llm = ChatGroq(
+    model = "meta-llama/llama-4-scout-17b-16e-instruct",           # Name of the chat model
+    temperature = 0,                                               # Temperature setting to '0', for consistent and deterministic responses
+    max_tokens = 1024,                                              # maximum number of tokens in the output
+    max_retries=2,
+    timeout=None)
 memory = ConversationBufferMemory(memory_key="chat_history")
-
 chat_agent = initialize_agent(
     tools=tools,
     llm=llm,
