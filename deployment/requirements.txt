@@ -8,7 +8,4 @@ spacy==3.7.4
 langchain_core==0.3.84
 langchain_huggingface
 langchainhub
-llm
-db_tool
-tools
-chat_agent
+subprocess
