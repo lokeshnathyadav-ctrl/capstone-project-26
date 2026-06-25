@@ -188,7 +188,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    needs: [register-data, llm, db-tool, tools, chat-agent]
+    needs: [register-data, db-tool, tools, chat-agent]
 
     steps:
 
