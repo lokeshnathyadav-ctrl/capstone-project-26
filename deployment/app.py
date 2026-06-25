@@ -31,12 +31,17 @@ local_path = "./capstone-project-26"
 if not os.path.exists(local_path):
     clone_repository(repo_url, local_path)
 sys.path.insert(0, local_path)
-#import my_functions
-#st.write(my_functions.my_function())
+#import db_tool
+#st.write(db_tool.db_agent
+import tools 
+st.write(tools.order_query())
+st.write(tools.answer_query())
+import chat_agent
+st.write(chat_agent.Chatbot()
 #from llm import llm
-from db_tool import db_agent, llm
-from tools import order_query, order_query_tool, answer_query, answer_query_tool
-from chat_agent import ChatBot, chat_agent
+#from db_tool import db_agent, llm
+#from tools import order_query, order_query_tool, answer_query, answer_query_tool
+#from chat_agent import ChatBot, chat_agent
 # Streamlit UI
 st.title("🍔 FoodHub Delivery ChatBot")
 st.write("Welcome to FoodHub Chat Support Assistant!")
