@@ -33,8 +33,8 @@ if not os.path.exists(local_path):
 sys.path.insert(0, local_path)
 #import my_functions
 #st.write(my_functions.my_function())
-from llm import llm
-from db_tool import db_agent
+#from llm import llm
+from db_tool import db_agent, llm
 from tools import order_query, order_query_tool, answer_query, answer_query_tool
 from chat_agent import ChatBot, chat_agent
 # Streamlit UI
