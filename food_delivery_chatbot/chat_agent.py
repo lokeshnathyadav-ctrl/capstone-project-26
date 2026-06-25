@@ -15,7 +15,7 @@ import json
 import pandas as pd
 import sqlite3
 #from db_tool import db_agent, llm
-from tools import order_query, answer_query
+from tools import order_query, answer_query, order_query_tool, answer_query_tool
 
 tools = [order_query_tool, answer_query_tool]
 
