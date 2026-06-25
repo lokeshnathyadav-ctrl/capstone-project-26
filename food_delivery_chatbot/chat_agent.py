@@ -25,11 +25,11 @@ llm = ChatGroq(
     timeout=None)
 order_query_tool = Tool(
     name = "OrderQueryTool",
-    func = queryfunc.order_query(),
+    func = queryfunc.order_query,
     description = "Generates a raw response for the user query by including the appropriate retreived order information.")
 answer_query_tool = Tool(
     name = "PolishedResponses",
-    func = queryfunc.answer_query(),
+    func = queryfunc.answer_query,
     description = "Polishes the raw response which are obtained from calling the 'OrderQueryTool' into precise, clear and user-friendly responses.")
 tools = [order_query_tool, answer_query_tool]
 memory = ConversationBufferMemory(memory_key="chat_history")
