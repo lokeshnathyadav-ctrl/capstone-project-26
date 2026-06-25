@@ -11,8 +11,14 @@ from typing import List, Optional, Dict
 import json
 import pandas as pd
 import sqlite3
-from model_4llama import llm
+#from model_4llama import llm
 import os
+llm = ChatGroq(
+    model = "meta-llama/llama-4-scout-17b-16e-instruct",           # Name of the chat model
+    temperature = 0,                                               # Temperature setting to '0', for consistent and deterministic responses
+    max_tokens = 1024,                                              # maximum number of tokens in the output
+    max_retries=2,
+    timeout=None)
 def order_query(inputs):
     """ 
     Takes the order details as inputs and generates a raw response for the question put by the users.

@@ -9,12 +9,12 @@ from langchain.memory import ConversationBufferMemory
 from langchain_core.messages import SystemMessage, HumanMessage
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
-from model_4llama import llm
+#from model_4llama import llm
 import os
 import json
 import pandas as pd
 import sqlite3
-from db_tool import db_agent
+from db_tool import db_agent, llm
 from tools import order_query, order_query_tool, answer_query, answer_query_tool
 
 tools = [order_query_tool, answer_query_tool]

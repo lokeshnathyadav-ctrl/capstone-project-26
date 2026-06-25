@@ -12,7 +12,14 @@ from langchain.agents.agent_types import AgentType
 from langchain.agents import initialize_agent, AgentType, load_tools, Tool
 from langchain_community.agent_toolkits.load_tools import load_tools
 from langchain_core.messages import SystemMessage, HumanMessage
-from model_4llama import llm
+#from model_4llama import llm
+#GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+llm = ChatGroq(
+    model = "meta-llama/llama-4-scout-17b-16e-instruct",           # Name of the chat model
+    temperature = 0,                                               # Temperature setting to '0', for consistent and deterministic responses
+    max_tokens = 1024,                                              # maximum number of tokens in the output
+    max_retries=2,
+    timeout=None)
 api = HfApi(token=os.getenv("HF_TOKEN"))
 connection = sqlite3.connect("customer_orders.db")
 DATASET_PATH = "hf://datasets/Lokeshnathy/foodhub-orders-data/FoodHub_Go.csv"
