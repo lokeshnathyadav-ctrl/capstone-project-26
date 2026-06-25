@@ -33,7 +33,7 @@ if not os.path.exists(local_path):
 sys.path.insert(0, local_path)
 #import db_tool
 #st.write(db_tool.db_agent
-from food_delivery_chatbot import chat_agent, db_tool, tools
+from food_delivery_chatbot import db_tool, queryfunc, chat_agent 
 #st.write(tools.order_query())
 #st.write(tools.answer_query())
 #import chat_agent
