@@ -16,7 +16,8 @@ import json
 import pandas as pd
 import sqlite3
 #from db_tool import llm
-import queryfunc
+#import queryfunc
+from queryfunc import order_query, answer_query # might add as requirements.txt to dependency handling
 llm = ChatGroq(
     model = "meta-llama/llama-4-scout-17b-16e-instruct",           # Name of the chat model
     temperature = 0,                                               # Temperature setting to '0', for consistent and deterministic responses
@@ -25,11 +26,11 @@ llm = ChatGroq(
     timeout=None)
 order_query_tool = Tool(
     name = "OrderQueryTool",
-    func = queryfunc.order_query,
+    func = order_query,
     description = "Generates a raw response for the user query by including the appropriate retreived order information.")
 answer_query_tool = Tool(
     name = "PolishedResponses",
-    func = queryfunc.answer_query,
+    func = answer_query,
     description = "Polishes the raw response which are obtained from calling the 'OrderQueryTool' into precise, clear and user-friendly responses.")
 tools = [order_query_tool, answer_query_tool]
 memory = ConversationBufferMemory(memory_key="chat_history")
