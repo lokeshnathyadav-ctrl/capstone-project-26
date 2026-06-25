@@ -33,7 +33,7 @@ if not os.path.exists(local_path):
 sys.path.insert(0, local_path)
 #import db_tool
 #st.write(db_tool.db_agent
-from food_delivery_chatbot import db_tool, queryfunc, chat_agent 
+#from food_delivery_chatbot import db_tool, queryfunc, chat_agent 
 #st.write(tools.order_query())
 #st.write(tools.answer_query())
 #import chat_agent
@@ -42,11 +42,12 @@ from food_delivery_chatbot import db_tool, queryfunc, chat_agent
 #from db_tool import db_agent, llm
 #from tools import order_query, order_query_tool, answer_query, answer_query_tool
 #from chat_agent import ChatBot, chat_agent
+from food_delivery_chatbot import chat_agent
 # Streamlit UI
 st.title("🍔 FoodHub Delivery ChatBot")
 st.write("Welcome to FoodHub Chat Support Assistant!")
 if "bot" not in st.session_state:
-    st.session_state.bot = Chatbot()
+    st.session_state.bot = chat_agent.Chatbot()
 if "messages" not in st.session_state:
     st.session_state.messages = []
 for message in st.session_state.messages:   # Display previous messages
