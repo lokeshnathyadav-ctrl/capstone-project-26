@@ -1,3 +1,4 @@
+from langchain_groq import ChatGroq
 from langchain import SQLDatabase, hub
 from langchain_community.agent_toolkits.sql.base import create_sql_agent
 from langchain_community.utilities import SQLDatabase
