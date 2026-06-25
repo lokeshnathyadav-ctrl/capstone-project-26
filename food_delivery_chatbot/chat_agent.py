@@ -1,3 +1,4 @@
+from langchain_groq import ChatGroq
 from langchain import SQLDatabase, hub
 from langchain_community.agent_toolkits.sql.base import create_sql_agent
 from langchain_community.utilities import SQLDatabase
@@ -14,7 +15,7 @@ import os
 import json
 import pandas as pd
 import sqlite3
-#from db_tool import db_agent, llm
+#from db_tool import llm
 from tools import order_query, answer_query, order_query_tool, answer_query_tool
 
 tools = [order_query_tool, answer_query_tool]
