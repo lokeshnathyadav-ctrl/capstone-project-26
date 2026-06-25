@@ -42,7 +42,7 @@ sys.path.insert(0, local_path)
 #from db_tool import db_agent, llm
 #from tools import order_query, order_query_tool, answer_query, answer_query_tool
 #from chat_agent import ChatBot, chat_agent
-from food_delivery_chatbot import chat_agent
+from food_delivery_chatbot import chat_agent, queryfunc
 # Streamlit UI
 st.title("🍔 FoodHub Delivery ChatBot")
 st.write("Welcome to FoodHub Chat Support Assistant!")
