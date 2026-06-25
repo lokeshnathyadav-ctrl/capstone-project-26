@@ -54,10 +54,7 @@ def order_query(inputs):
     raw_response = llm.predict_messages([SystemMessage(content=system_prompt),HumanMessage(content=prompt)])
     return raw_response
 
-order_query_tool = Tool(
-    name = "OrderQueryTool",
-    func = order_query,
-    description = "Generates a raw response for the user query by including the appropriate retreived order information.")
+
 
 def answer_query(raw_response):
     """
@@ -77,9 +74,3 @@ def answer_query(raw_response):
             polished_tokens.append(token.lemma_)                       # Lemmatize the token to its base form  
     polished_response = ' '.join(polished_tokens)                     # Reconstruct the polished sentence
     return polished_response
-
-
-answer_query_tool = Tool(
-    name = "PolishedResponses",
-    func = answer_query,
-    description = "Polishes the raw response which are obtained from calling the 'OrderQueryTool' into precise, clear and user-friendly responses.")
