@@ -63,13 +63,13 @@ class Chatbot:
             else:
                 return []
         except Exception as e:
-            print(f"Database Error: {e}")
+            print(f"Database Error: {e}")                 # Assuming code passed here!
             return []
     # Defining a query response function to execute and run the built chat agent
     def query_response(self, order_id, user_query):
         order_results = self.get_order_details(order_id)
-        if not order_results:
-            return "Sorry! Order not found."     
+#        if not order_results:
+#            return "Sorry! Order not found."     
         # Agent Prompt
         agent_prompt = f"""
         The user querying for a particular order with Order ID, '{order_id}'.
@@ -86,8 +86,7 @@ class Chatbot:
         try:
             response = chat_agent.run(agent_prompt)
             return response
-        except Exception as e:
-            
+        except Exception as e:          
             return "Sorry! Something went wrong while processing your request."     
     # Main Chat Function
     def chat(self, user_query):
@@ -99,7 +98,6 @@ class Chatbot:
                 f"{self.ask_order_message}")
         # If order_id not captured yet
         if self.order_id is None:
-
             self.order_id = user_query.strip()
             return (
                 f"Thanks! I see you shared your Order ID as "
