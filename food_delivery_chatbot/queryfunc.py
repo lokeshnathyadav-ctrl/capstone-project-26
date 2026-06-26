@@ -14,24 +14,13 @@ import spacy
 from langchain_core.messages import SystemMessage, HumanMessage
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
-@tool("response_generator", description="Generates a raw response to the user query by identifying the results of an order."
+@tool("response_generator", description="Generates a raw response to the user query by identifying the results of an order.")
 def order_query(inputs):
     """ 
     Takes the order details as inputs and generates a raw response for the question put by the users.
     """
-    if isinstance(inputs, dict):
-
-        
-        
-        
-        
+    if isinstance(inputs, dict):        
         order_results = inputs.get("order_details", [])
-
-        
-        
-        
-        
-        
         user_query = inputs.get("user_query","")
     else:
         order_results = [i.strip() for i in str(inputs).split(",")]
@@ -59,7 +48,7 @@ def order_query(inputs):
     raw_response = llm.predict_messages([SystemMessage(content=system_prompt),HumanMessage(content=prompt)])
     return raw_response
 
-@tool("response_formalizer", description = "Polishes the raw response obtained in 'order_query' tool into precise, clear and user-friendly reply message."
+@tool("response_formalizer", description = "Polishes the raw response obtained in 'order_query' tool into precise, clear and user-friendly reply message.")
 def answer_query(raw_response):
     """
     Polishes a raw response by tokenizing, removing stop words and punctuation, 
