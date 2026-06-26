@@ -6,7 +6,6 @@ from langchain_groq import ChatGroq
 from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits.sql.base import create_sql_agent
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
-from langchain.agents import initialize_agent
 from langchain.tools import tool
 from langchain_core.utils.uuid import uuid7
 from langgraph.checkpoint.memory import InMemorySaver
@@ -14,7 +13,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
 from queryfunc import order_query, answer_query
-#from langchain.agents import create_agent
+from langchain.agents import create_agent
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 llm = ChatGroq(
@@ -24,7 +23,7 @@ llm = ChatGroq(
     max_retries=2,
     timeout=None)
 config = {"configurable": {"thread_id": str(uuid7())}}
-chat_agent = initialize_agent(
+chat_agent = create_agent(
     tools=[order_query, answer_query],
     model=llm,
     checkpointer=InMemorySaver())
