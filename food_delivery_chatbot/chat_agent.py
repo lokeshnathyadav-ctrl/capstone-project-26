@@ -6,8 +6,9 @@ from langchain_groq import ChatGroq
 from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits.sql.base import create_sql_agent
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
-from langchain.agents.agent_types import AgentType
-from langchain.agents import create_agent, Tool
+#from langchain.agents.agent_types import AgentType
+from langchain.agents import create_agent
+from langchain.tools import tool
 from langchain_core.utils.uuid import uuid7
 from langgraph.checkpoint.memory import InMemorySaver
 from langchain_community.agent_toolkits.load_tools import load_tools
@@ -52,7 +53,7 @@ config = {"configurable": {"thread_id": str(uuid7())}}
 chat_agent = create_agent(
     tools=tools,
     llm=llm,
-    agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,
+#    agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,
     verbose=False,
     checkpointer=InMemorySaver(),
     handle_parsing_errors=True)
