@@ -15,6 +15,7 @@ from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
 from queryfunc import order_query, answer_query
 
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 llm = ChatGroq(
     model = "meta-llama/llama-4-scout-17b-16e-instruct",           # Name of the chat model
     temperature = 0,                                               # Temperature setting to '0', for consistent and deterministic responses
@@ -24,7 +25,7 @@ llm = ChatGroq(
 config = {"configurable": {"thread_id": str(uuid7())}}
 chat_agent = create_agent(
     tools=[order_query, answer_query],
-    llm=llm,
+    model=llm,
     checkpointer=InMemorySaver())
 # Chatbot Class
 class Chatbot:
