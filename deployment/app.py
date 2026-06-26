@@ -21,6 +21,8 @@ from typing import List, Optional, Dict
 import subprocess
 import sys
 
+#app_dir = os.path.dirname(os.path.abspath('app.py'))
+
 def clone_repository(repo_url, local_path):
     try:
         subprocess.run(["git", "clone", repo_url, local_path], check=True)
@@ -42,7 +44,10 @@ sys.path.insert(0, local_path)
 #from db_tool import db_agent, llm
 #from tools import order_query, order_query_tool, answer_query, answer_query_tool
 #from chat_agent import ChatBot, chat_agent
-from food_delivery_chatbot import queryfunc, chat_agent
+queryfunc_dir = os.environ['BUILD_DIR']
+sys.path.insert(0,queryfunc_dir)
+import queryfunc
+from food_delivery_chatbot import chat_agent
 # Streamlit UI
 st.title("🍔 FoodHub Delivery ChatBot")
 st.write("Welcome to FoodHub Chat Support Assistant!")
