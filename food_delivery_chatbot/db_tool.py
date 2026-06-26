@@ -2,7 +2,6 @@ import os
 import json
 import pandas as pd
 import sqlite3
-from langchain import hub
 from huggingface_hub import login,HfApi
 from langchain_groq import ChatGroq
 from langchain_community.agent_toolkits.sql.base import create_sql_agent

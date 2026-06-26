@@ -7,7 +7,6 @@ from langchain import hub
 from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits.load_tools import load_tools
 from langchain_groq import ChatGroq
-from langchain import hub
 from langchain_community.agent_toolkits.sql.base import create_sql_agent
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
 from langchain.agents.agent_types import AgentType

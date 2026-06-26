@@ -8,7 +8,6 @@ import spacy
 import sqlite3 
 import getpass
 import streamlit as st
-from langchain import hub
 from huggingface_hub import login,HfApi
 from langchain_groq import ChatGroq
 from langchain_community.utilities import SQLDatabase
