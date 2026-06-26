@@ -1,4 +1,3 @@
-
 import os
 import json
 import pandas as pd
@@ -18,7 +17,6 @@ from langchain.memory import ConversationBufferMemory
 from langchain_core.messages import SystemMessage, HumanMessage
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
-from queryfunc import order_query, answer_query
 
 llm = ChatGroq(
     model = "meta-llama/llama-4-scout-17b-16e-instruct",           # Name of the chat model
