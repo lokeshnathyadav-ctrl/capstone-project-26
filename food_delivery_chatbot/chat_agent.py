@@ -1,23 +1,21 @@
+import os
+import json
+import pandas as pd
+import sqlite3
 from langchain_groq import ChatGroq
-from langchain import SQLDatabase, hub
-from langchain_community.agent_toolkits.sql.base import create_sql_agent
+from langchain import hub
 from langchain_community.utilities import SQLDatabase
-from langchain.agents.agent_toolkits import SQLDatabaseToolkit
+from langchain_community.agent_toolkits.sql.base import create_sql_agent
+from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
 from langchain.agents.agent_types import AgentType
-from langchain.agents import initialize_agent, AgentType, load_tools, Tool
+from langchain.agents import initialize_agent, Tool
 from langchain_community.agent_toolkits.load_tools import load_tools
 from langchain.memory import ConversationBufferMemory
 from langchain_core.messages import SystemMessage, HumanMessage
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
-#from model_4llama import llm
-import os
-import json
-import pandas as pd
-import sqlite3
-#from db_tool import llm
-#import queryfunc
-from queryfunc import order_query, answer_query # running in git but not in hf
+from queryfunc import order_query, answer_query
+
 llm = ChatGroq(
     model = "meta-llama/llama-4-scout-17b-16e-instruct",           # Name of the chat model
     temperature = 0,                                               # Temperature setting to '0', for consistent and deterministic responses
