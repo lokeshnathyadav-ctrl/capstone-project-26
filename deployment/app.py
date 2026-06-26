@@ -21,7 +21,6 @@ from langchain.memory import ConversationBufferMemory
 from langchain_core.messages import SystemMessage, HumanMessage
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
-from queryfunc import order_query, answer_query
 
 def clone_repository(repo_url, local_path):
     try:
