@@ -8,9 +8,11 @@ from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits.sql.base import create_sql_agent
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
 from langchain.agents.agent_types import AgentType
-from langchain.agents import initialize_agent, Tool
+from langchain.agents import create_agent, Tool
+from langchain_core.utils.uuid import uuid7
+from langgraph.checkpoint.memory import InMemorySaver
 from langchain_community.agent_toolkits.load_tools import load_tools
-from langchain.memory import ConversationBufferMemory
+#from langchain.memory import ConversationBufferMemory
 from langchain_core.messages import SystemMessage, HumanMessage
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
@@ -31,19 +33,34 @@ answer_query_tool = Tool(
     func = answer_query,
     description = "Polishes the raw response which are obtained from calling the 'OrderQueryTool' into precise, clear and user-friendly responses.")
 tools = [order_query_tool, answer_query_tool]
-memory = ConversationBufferMemory(memory_key="chat_history")
+#memory = ConversationBufferMemory(memory_key="chat_history")
+#-----------------------------------------------------------------------
 
-chat_agent = initialize_agent(
+config = {"configurable": {"thread_id": str(uuid7())}}
+
+#result = agent.invoke(
+#    {"messages": [{"role": "user", "content": "What's the weather in San Francisco?"}]},
+#    config=config,
+#)
+
+# A follow-up turn on the same conversation: reuse the same thread_id to keep history
+#result = agent.invoke(
+#    {"messages": [{"role": "user", "content": "What about tomorrow?"}]},
+#    config=config,
+#)
+
+#-------------------------------------------------------------------------
+chat_agent = create_agent(
     tools=tools,
     llm=llm,
     agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,
     verbose=False,
-    memory=memory,
+    checkpointer=InMemorySaver(),
     handle_parsing_errors=True)
 # Chatbot Class
 class Chatbot:
     def __init__(self):
-        self.chat_history = []
+        self.config = []
         self.order_id = None
         self.welcome_message = ("Hello! Welcome to Food Delivery Support 🍴")
         self.ask_order_message = ("Could you please share the Order ID you're searching for?")
@@ -71,9 +88,7 @@ class Chatbot:
        
         
 #---------------------------------------------------------------------------------------------        
-        
-        
-        
+              
         # Agent Prompt
         agent_prompt = f"""
         The user querying for a particular order with Order ID, '{order_id}'.
@@ -88,27 +103,18 @@ class Chatbot:
         4. Reply the user with the generated response obtained in the step:3
         """
         try:
-            response = chat_agent.invoke(agent_prompt)
+            response = chat_agent.invoke(agent_prompt,config=config)
             return response
         except Exception as e:          
             return "Sorry! Something went wrong while processing your request."     
     
-    
-    
-    
-    
 #--------------------------------------------------------------------------------------------  
-    
-    
-    
-    
-    
-    
+     
     # Main Chat Function
     def chat(self, user_query):
-        self.chat_history.append(user_query)
+        self.config.append(user_query)
         # First Interaction
-        if len(self.chat_history) == 1:
+        if len(self.config) == 1:
             return (
                 f"{self.welcome_message}\n\n"
                 f"{self.ask_order_message}")
