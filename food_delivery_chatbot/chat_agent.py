@@ -34,6 +34,10 @@ answer_query_tool = Tool(
     description = "Polishes the raw response which are obtained from calling the 'OrderQueryTool' into precise, clear and user-friendly responses.")
 tools = [order_query_tool, answer_query_tool]
 memory = ConversationBufferMemory(memory_key="chat_history")
+
+#-----------------------------------------------------
+
+
 chat_agent = initialize_agent(
     tools=tools,
     llm=llm,
@@ -41,6 +45,11 @@ chat_agent = initialize_agent(
     verbose=False,
     memory=memory,
     handle_parsing_errors=True)
+
+
+#-------------------------------------------------------
+
+
 
 # Chatbot Class
 class Chatbot:
@@ -62,14 +71,31 @@ class Chatbot:
                 return output
             else:
                 return []
+
+        
+#----------------------------------------------------------------------------        
+        
+        
+        
         except Exception as e:
             print(f"Database Error: {e}")                 # Assuming code passed here!
             return []
+
+    
+#----------------------------------------------------------------------------------------   
+    
+    
     # Defining a query response function to execute and run the built chat agent
     def query_response(self, order_id, user_query):
         order_results = self.get_order_details(order_id)
-#        if not order_results:
-#            return "Sorry! Order not found."     
+        if not order_results:
+            return "Sorry! Order not found."     
+       
+        
+#---------------------------------------------------------------------------------------------        
+        
+        
+        
         # Agent Prompt
         agent_prompt = f"""
         The user querying for a particular order with Order ID, '{order_id}'.
@@ -88,6 +114,18 @@ class Chatbot:
             return response
         except Exception as e:          
             return "Sorry! Something went wrong while processing your request."     
+    
+    
+    
+    
+    
+#--------------------------------------------------------------------------------------------  
+    
+    
+    
+    
+    
+    
     # Main Chat Function
     def chat(self, user_query):
         self.chat_history.append(user_query)
