@@ -20,6 +20,7 @@ llm = ChatGroq(
     max_tokens = 1024,                                              # maximum number of tokens in the output
     max_retries=2,
     timeout=None)
+
 def order_query(inputs):
     """ 
     Takes the order details as inputs and generates a raw response for the question put by the users.
@@ -44,17 +45,14 @@ def order_query(inputs):
     A raw response which include the context of the user query paired with the necessary order information he's looking for.
     """
     
-    prompt = """
-    Generate one raw response related to the order '{order_id} and the user query '{user_query}'.
+    prompt = f"""
+    Generate one raw response related to the order '{order_id}' and the user query '{user_query}'.
 
     While generating the raw reponse take help of these order related information to match the context present in user query with the appropriate order related information.
-    Order Details:
-    '{order_results}'
+    Order Details: '{order_results}'
     """
     raw_response = llm.predict_messages([SystemMessage(content=system_prompt),HumanMessage(content=prompt)])
     return raw_response
-
-
 
 def answer_query(raw_response):
     """
