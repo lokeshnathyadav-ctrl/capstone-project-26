@@ -24,15 +24,17 @@ llm = ChatGroq(
     max_tokens = 1024,                                              # maximum number of tokens in the output
     max_retries=2,
     timeout=None)
-order_query_tool = tool(
-    name = "OrderQueryTool",
-    func = order_query,
-    description = "Generates a raw response for the user query by including the appropriate retreived order information.")
-answer_query_tool = tool(
-    name = "PolishedResponses",
-    func = answer_query,
-    description = "Polishes the raw response which are obtained from calling the 'OrderQueryTool' into precise, clear and user-friendly responses.")
-tools = [order_query_tool, answer_query_tool]
+
+#------------------------------------------------------------------------
+#order_query_tool = tool(
+#    name = "OrderQueryTool",
+#    func = order_query,
+#    description = "Generates a raw response for the user query by including the appropriate retreived order information.")
+#answer_query_tool = tool(
+#    name = "PolishedResponses",
+#    func = answer_query,
+#    description = "Polishes the raw response which are obtained from calling the 'OrderQueryTool' into precise, clear and user-friendly responses.")
+#tools = [order_query_tool, answer_query_tool]
 #memory = ConversationBufferMemory(memory_key="chat_history")
 #-----------------------------------------------------------------------
 
@@ -50,13 +52,14 @@ config = {"configurable": {"thread_id": str(uuid7())}}
 #)
 
 #-------------------------------------------------------------------------
+#model = ChatOpenAI(model="ollama:north-mini-code-1.0")
 chat_agent = create_agent(
-    tools=tools,
+    tools=[order_query, answer_query],
     llm=llm,
 #    agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,
-    verbose=False,
-    checkpointer=InMemorySaver(),
-    handle_parsing_errors=True)
+#    verbose=False,
+    checkpointer=InMemorySaver())
+#    handle_parsing_errors=True
 # Chatbot Class
 class Chatbot:
     def __init__(self):
