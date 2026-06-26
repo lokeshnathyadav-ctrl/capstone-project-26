@@ -37,7 +37,7 @@ memory = ConversationBufferMemory(memory_key="chat_history")
 chat_agent = initialize_agent(
     tools=tools,
     llm=llm,
-    agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
+    agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,
     verbose=False,
     memory=memory,
     handle_parsing_errors=True)
@@ -84,7 +84,7 @@ class Chatbot:
         4. Reply the user with the generated response obtained in the step:3
         """
         try:
-            response = chat_agent.run(agent_prompt)
+            response = chat_agent.invoke(agent_prompt)
             return response
         except Exception as e:          
             return "Sorry! Something went wrong while processing your request."     
