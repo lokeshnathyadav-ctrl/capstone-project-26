@@ -3,7 +3,6 @@ import json
 import pandas as pd
 import sqlite3
 import spacy
-from langchain import hub
 from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits.load_tools import load_tools
 from langchain_groq import ChatGroq
