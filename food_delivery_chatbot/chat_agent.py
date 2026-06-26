@@ -6,13 +6,10 @@ from langchain_groq import ChatGroq
 from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits.sql.base import create_sql_agent
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
-#from langchain.agents.agent_types import AgentType
 from langchain.agents import create_agent
 from langchain.tools import tool
 from langchain_core.utils.uuid import uuid7
 from langgraph.checkpoint.memory import InMemorySaver
-from langchain_community.agent_toolkits.load_tools import load_tools
-#from langchain.memory import ConversationBufferMemory
 from langchain_core.messages import SystemMessage, HumanMessage
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
@@ -24,42 +21,11 @@ llm = ChatGroq(
     max_tokens = 1024,                                              # maximum number of tokens in the output
     max_retries=2,
     timeout=None)
-
-#------------------------------------------------------------------------
-#order_query_tool = tool(
-#    name = "OrderQueryTool",
-#    func = order_query,
-#    description = "Generates a raw response for the user query by including the appropriate retreived order information.")
-#answer_query_tool = tool(
-#    name = "PolishedResponses",
-#    func = answer_query,
-#    description = "Polishes the raw response which are obtained from calling the 'OrderQueryTool' into precise, clear and user-friendly responses.")
-#tools = [order_query_tool, answer_query_tool]
-#memory = ConversationBufferMemory(memory_key="chat_history")
-#-----------------------------------------------------------------------
-
 config = {"configurable": {"thread_id": str(uuid7())}}
-
-#result = agent.invoke(
-#    {"messages": [{"role": "user", "content": "What's the weather in San Francisco?"}]},
-#    config=config,
-#)
-
-# A follow-up turn on the same conversation: reuse the same thread_id to keep history
-#result = agent.invoke(
-#    {"messages": [{"role": "user", "content": "What about tomorrow?"}]},
-#    config=config,
-#)
-
-#-------------------------------------------------------------------------
-#model = ChatOpenAI(model="ollama:north-mini-code-1.0")
 chat_agent = create_agent(
     tools=[order_query, answer_query],
     llm=llm,
-#    agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,
-#    verbose=False,
     checkpointer=InMemorySaver())
-#    handle_parsing_errors=True
 # Chatbot Class
 class Chatbot:
     def __init__(self):
@@ -87,11 +53,7 @@ class Chatbot:
     def query_response(self, order_id, user_query):
         order_results = self.get_order_details(order_id)
         if not order_results:
-            return "Sorry! Order not found."     
-       
-        
-#---------------------------------------------------------------------------------------------        
-              
+            return "Sorry! Order not found."                 
         # Agent Prompt
         agent_prompt = f"""
         The user querying for a particular order with Order ID, '{order_id}'.
@@ -110,9 +72,7 @@ class Chatbot:
             return response
         except Exception as e:          
             return "Sorry! Something went wrong while processing your request."     
-    
-#--------------------------------------------------------------------------------------------  
-     
+
     # Main Chat Function
     def chat(self, user_query):
         self.config.append(user_query)

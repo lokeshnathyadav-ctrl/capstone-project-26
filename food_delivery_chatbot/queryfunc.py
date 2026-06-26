@@ -1,16 +1,8 @@
 import os
 import json
 import pandas as pd
-#import sqlite3
 import spacy
-#from langchain_community.utilities import SQLDatabase
-#from langchain_groq import ChatGroq
-#from langchain_community.agent_toolkits.sql.base import create_sql_agent
-#from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
-#from langchain.agents.agent_types import AgentType
 from langchain.tools import tool
-#from langchain_community.agent_toolkits.load_tools import load_tools
-#from langchain.memory import ConversationBufferMemory
 from langchain_core.messages import SystemMessage, HumanMessage
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
@@ -59,11 +51,10 @@ def answer_query(raw_response):
         str: The polished sentence meant to be replied to the user as response.
     """
     nlp = spacy.load('en_core_web_sm')
-#    nlp = en_core_web_sm.load()
     doc = nlp(raw_response)
     polished_tokens = []
     for token in doc:
-        if not token.is_stop and not token.is_punct:                   # Check if the token is not a stop word and not punctuation
-            polished_tokens.append(token.lemma_)                       # Lemmatize the token to its base form  
-    polished_response = ' '.join(polished_tokens)                     # Reconstruct the polished sentence
+        if not token.is_stop and not token.is_punct:                   # Check stop words & non-punc mark
+            polished_tokens.append(token.lemma_)                       # Lemmatize 
+    polished_response = ' '.join(polished_tokens)                     # Reconstructing polished sent
     return polished_response
