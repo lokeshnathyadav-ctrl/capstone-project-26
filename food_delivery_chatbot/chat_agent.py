@@ -11,7 +11,7 @@ from langchain.agents import create_agent
 from langchain.tools import tool
 from langchain_core.utils.uuid import uuid7
 from langgraph.checkpoint.memory import InMemorySaver
-#from langchain_community.agent_toolkits.load_tools import load_tools
+from langchain_community.agent_toolkits.load_tools import load_tools
 #from langchain.memory import ConversationBufferMemory
 from langchain_core.messages import SystemMessage, HumanMessage
 from pydantic import BaseModel, Field, ValidationError
