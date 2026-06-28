@@ -37,7 +37,7 @@ class Chatbot:
     # Fetch Order Details
     def get_order_details(self,order_id):
         try:
-            order_details = db_agent.invoke(f"Fetch the order information related to Order ID '{order_id}'")
+            order_details = db_agent.invoke(f"Fetch the order information related to Order ID '{self.order_id}'")
             output = order_details.get("output",[])
             if isinstance(output,dict) and "items" in output:
                 return output["items"]
@@ -54,7 +54,19 @@ class Chatbot:
     def query_response(self, order_id, user_query):
         order_results = self.get_order_details(order_id)
         if not order_results:
+           
+            
+            
+            
+            
             return "Sorry! Order not found."                 
+        
+        
+        
+        
+        
+        
+        
         # Agent Prompt
         agent_prompt = f"""
         The user querying for a particular order with Order ID, '{order_id}'.

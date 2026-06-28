@@ -40,7 +40,7 @@ def order_query(inputs):
     raw_response = llm.predict_messages([SystemMessage(content=system_prompt),HumanMessage(content=prompt)])
     return raw_response
 
-@tool("response_formalizer", description = "Polishes the raw response obtained in 'order_query' tool into precise, clear and user-friendly reply message.")
+@tool("response_formalizer", description = "Polishes the raw response obtained in 'order_query' tool into precise, clear and user-friendly sentence as reply.")
 def answer_query(raw_response):
     """
     Polishes a raw response by tokenizing, removing stop words and punctuation, 
