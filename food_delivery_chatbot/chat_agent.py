@@ -35,38 +35,29 @@ class Chatbot:
         self.welcome_message = ("Hello! Welcome to Food Delivery Support 🍴")
         self.ask_order_message = ("Could you please share the Order ID you're searching for?")
     # Fetch Order Details
-    def get_order_details(self,order_id):
+    def is_valid_order_id(self, order_id):
+        # Query the database to check if the provided string is a valid order ID
         try:
-            order_details = db_agent.invoke(f"Fetch the order information related to Order ID '{self.order_id}'")
-            output = order_details.get("output",[])
-            if isinstance(output,dict) and "items" in output:
-                return output["items"]
-            elif isinstance(output,str):
-                return[i.strip() for i in output.split(",")]
-            elif isinstance(output,list):
-                return output
-            else:
-                return []        
+            response = db_agent.run(query=f"SELECT * FROM orders WHERE order_id = '{order_id}'")
+            return response is not None and len(response) > 0
         except Exception as e:
-            print(f"Database Error: {e}")                 # Assuming code passed here!
-            return []
+            # Handle any exceptions that may occur during database query
+            print(f"Error validating order ID: {str(e)}")
+            return False
+    
+    def get_order_results(self, order_id):
+        try:
+            order_results = db_agent.invoke(f"Fetch the order information related to Order ID '{order_id}'")
+            return response
+        except Exception as e:
+            # Handle any exceptions that may occur during database query
+            print(f"Error getting order results: {str(e)}")
+            return None  
     # Defining a query response function to execute and run the built chat agent
     def query_response(self, order_id, user_query):
         order_results = self.get_order_details(order_id)
-        if not order_results:
-           
-            
-            
-            
-            
+        if not order_results:  
             return "Sorry! Order not found."                 
-        
-        
-        
-        
-        
-        
-        
         # Agent Prompt
         agent_prompt = f"""
         The user querying for a particular order with Order ID, '{order_id}'.
@@ -97,10 +88,10 @@ class Chatbot:
         # If order_id not captured yet
         if self.order_id is None:
             self.order_id = user_query.strip()
-            return (
+            return (               
                 f"Thanks! I see you shared your Order ID as "
                 f"'{self.order_id}'.\n\n"
-                f"Please tell me your concern with this order.")
+                f"Please tell me your concern with this order.")        
         # Actual Query Processing 
         response = self.query_response(       
             order_id=self.order_id,
