@@ -23,7 +23,7 @@ llm = ChatGroq(
     max_retries=2,
     timeout=None)
 config = {"configurable": {"thread_id": str(uuid7())}}
-chat_agent = create_agent(
+chatagent = create_agent(
     tools=[order_query, answer_query],
     model=llm,
     checkpointer=InMemorySaver())
@@ -33,18 +33,7 @@ class Chatbot:
         self.config = []
         self.order_id = None
         self.welcome_message = ("Hello! Welcome to Food Delivery Support 🍴")
-        self.ask_order_message = ("Could you please share the Order ID you're searching for?")
-    # Fetch Order Details
-    def is_valid_order_id(self, order_id):
-        # Query the database to check if the provided string is a valid order ID
-        try:
-            response = db_agent.run(query=f"SELECT * FROM orders WHERE order_id = '{order_id}'")
-            return response is not None and len(response) > 0
-        except Exception as e:
-            # Handle any exceptions that may occur during database query
-            print(f"Error validating order ID: {str(e)}")
-            return False
-    
+        self.ask_order_message = ("Could you please share the Order ID you're searching for?")  
     def get_order_results(self, order_id):
         try:
             order_results = db_agent.invoke(f"Fetch the order information related to Order ID '{order_id}'")
@@ -72,11 +61,10 @@ class Chatbot:
         4. Reply the user with the generated response obtained in the step:3
         """
         try:
-            response = chat_agent.invoke(agent_prompt,config=config)
+            response = chatagent.invoke(agent_prompt,config=config)
             return response
         except Exception as e:          
             return "Sorry! Something went wrong while processing your request."     
-
     # Main Chat Function
     def chat(self, user_query):
         self.config.append(user_query)
@@ -87,10 +75,12 @@ class Chatbot:
                 f"{self.ask_order_message}")
         # If order_id not captured yet
         if self.order_id is None:
-            self.order_id = user_query.strip()
+            order_id = user_query.strip()
+            if not order_id:
+                return "Sorry, I didn't quite catch that up, could you please provide a valid order."
             return (               
                 f"Thanks! I see you shared your Order ID as "
-                f"'{self.order_id}'.\n\n"
+                f"'{order_id}'.\n\n"
                 f"Please tell me your concern with this order.")        
         # Actual Query Processing 
         response = self.query_response(       

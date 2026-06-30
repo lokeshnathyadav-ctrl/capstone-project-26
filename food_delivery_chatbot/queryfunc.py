@@ -7,12 +7,12 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
 @tool("response_generator", description="Generates a raw response to the user query by identifying the results of an order.")
-def order_query(inputs):
+def order_query(inputs:dict) -> str:
     """ 
     Takes the order details as inputs and generates a raw response for the question put by the users.
     """
     if isinstance(inputs, dict):        
-        order_results = inputs.get("order_details", [])
+        order_results = inputs.get("order_details", [])       
         user_query = inputs.get("user_query","")
     else:
         order_results = [i.strip() for i in str(inputs).split(",")]
@@ -34,7 +34,7 @@ def order_query(inputs):
     prompt = f"""
     Generate one raw response related to the order '{order_id}' and the user query '{user_query}'.
 
-    While generating the raw reponse take help of these order related information to match the context present in user query with the appropriate order related information.
+    While generating the raw response take help of these order related information to match the context present in user query with the appropriate order related information.
     Order Details: '{order_results}'
     """
     raw_response = llm.predict_messages([SystemMessage(content=system_prompt),HumanMessage(content=prompt)])
