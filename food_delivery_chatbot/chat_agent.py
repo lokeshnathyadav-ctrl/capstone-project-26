@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
 from queryfunc import order_query, answer_query
 from langchain.agents import create_agent
-
+import re
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 llm = ChatGroq(
     model = "meta-llama/llama-4-scout-17b-16e-instruct",           # Name of the chat model
@@ -42,6 +42,18 @@ class Chatbot:
             # Handle any exceptions that may occur during database query
             print(f"Error getting order results: {str(e)}")
             return None  
+    def validate_an_order(self,order_id):
+        # Heuristic 1: Purely numeric and of a considerable length (let's say 8 digits)
+        if order_id.isdigit() and len(order_id) >= 5:
+            return f"'{order_id}'"
+
+        # Heuristic 2: Starts with 'ORD' and followed by numbers
+        if re.match(r'^O\d+$', order_id):
+            return f"'{order_id}'"
+
+        # If none of the heuristics match, treat it as plain text
+        return f"'{order_id}' is not a valid Order ID."
+    
     # Defining a query response function to execute and run the built chat agent
     def query_response(self, order_id, user_query):
         order_results = self.get_order_details(order_id)
@@ -74,14 +86,14 @@ class Chatbot:
                 f"{self.welcome_message}\n\n"
                 f"{self.ask_order_message}")
         # If order_id not captured yet
-        if self.order_id is None:
-            order_id = user_query.strip()
+        if self.order_id is None:            
+            order_id = self.validate_an_order(order_id)            
             if not order_id:
                 return "Sorry, I didn't quite catch that up, could you please provide a valid order."
             return (               
                 f"Thanks! I see you shared your Order ID as "
                 f"'{order_id}'.\n\n"
-                f"Please tell me your concern with this order.")        
+                f"Please tell me your concern with this order.")                
         # Actual Query Processing 
         response = self.query_response(       
             order_id=self.order_id,

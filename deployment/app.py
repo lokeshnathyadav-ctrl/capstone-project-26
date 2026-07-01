@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import os
+import re
 import json
 import pandas as pd
 import sqlite3
@@ -54,7 +55,21 @@ if user_query:              # Chat Processing
     )
     with st.chat_message("user"):
         st.markdown(user_query)   
+
+    
+    
+    
+    
+    
+    
     response = st.session_state.bot.chat(user_query)    # Generate Bot Response
+
+    
+    
+    
+    
+    
+    
     # Store Assistant Response
     st.session_state.messages.append(
         {
