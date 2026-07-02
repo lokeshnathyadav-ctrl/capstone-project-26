@@ -75,8 +75,23 @@ class Chatbot:                                                      # Chatbot Cl
                 f"{self.ask_order_message}")
         if self.order_id is None:                                       # If order_id not captured yet
             self.order_id = user_query.strip()          
-            if not order_id:
-                return "Sorry, I didn't quite catch that up, could you please provide a valid order."
+
+            
+            
+            
+            
+            
+            
+#           if not self.order_id:                              # order_id not defined here!
+
+                
+                
+                
+                
+                
+                
+                
+#                return "Sorry, I didn't quite catch that up, could you please provide a valid order."
             return (               
                 f"Thanks! I see you shared your Order ID as "
                 f"'{order_id}'.\n\n"
