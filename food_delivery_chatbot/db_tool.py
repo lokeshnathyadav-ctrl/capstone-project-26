@@ -10,6 +10,11 @@ from langchain_community.utilities import SQLDatabase
 from langchain_core.messages import SystemMessage, HumanMessage
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
+from dataclasses import dataclass
+from langchain.agents import create_agent
+from langchain.tools import tool, ToolRuntime
+from langchain_core.utils.uuid import uuid7
+#from langchain_openai import ChatOpenAI
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 llm = ChatGroq(
@@ -26,20 +31,45 @@ df.to_sql('FoodHub_Go',connection,if_exists='append',index=False)
 db = SQLDatabase.from_uri("sqlite:///customer_orders.db")
 system_message = """
 Below is an instruction that describes the task, paired with an input that provides further context.
-Write a response that appropriately completes the request.
+Give a response that appropriately completes the request.
 
 ### Instruction:
-Fetch and retrieve the order related details in the form of a JSON with every field in the fetched data beina a string.
+Fetch and retrieve the order related details.
 
 ###Input:
-Order number/ID is given as input where the agent will fetch data related to Order ID from the provided database.
+Order number or Order ID is given as input where the agent will fetch data related to this order from the database.
 
-### Response:
+### Response: 
+Retrieved order information in the format, specified in 'Ordercontext' class.
 """
+
+@dataclass
+class Ordercontext:
+    order_id: str
+
+@tool
+def get_order_info(runtime: ToolRuntime[Ordercontext]) -> str:
+    """Get the current user's order information."""
+    order_id = runtime.context.order_id
+    if order_id in db:
+        order= db[order_id]
+        return (
+            f"Time of the Order: {order['order_time']}\n"
+            f"Current status of the Order: {order['order_status']}\n"
+            f"Payment Status: {order['payment_status']}\n"
+            f"Food item ordered: {order['item_in_order']}\n"
+            f"Time taken to prepare food: {order['preparing_eta']}\n"
+            f"Time at which order prepared: {order['prepared_time']}\n"
+            f"Estimated food delivery time: {order['delivery_eta']}\n"
+            f"Time at which food is delivered: {order['delivery_time']}")
+    return "Order not found"
+
 db_agent = create_sql_agent(
     llm=llm,
     db=db,
-    agent_type = "openai-tools",
+    tools = [get_order_info],
+    context_schema=Ordercontext,
+#    agent_type = "openai-tools",
     handle_parsing_errors = True,
     verbose = False,
     system_message= SystemMessage(system_message))

@@ -15,6 +15,14 @@ from typing import List, Optional, Dict
 from queryfunc import order_query, answer_query
 from langchain.agents import create_agent
 import re
+from dataclasses import dataclass
+from langchain.messages import ToolMessage
+
+
+from langchain.agents import create_agent
+from langchain.tools import tool, ToolRuntime
+from langchain_core.utils.uuid import uuid7
+#from langchain_openai import ChatOpenAI
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 llm = ChatGroq(
     model = "meta-llama/llama-4-scout-17b-16e-instruct",           # Name of the chat model
@@ -22,11 +30,13 @@ llm = ChatGroq(
     max_tokens = 1024,                                              # maximum number of tokens in the output
     max_retries=2,
     timeout=None)
-config = {"configurable": {"thread_id": str(uuid7())}}
 chatagent = create_agent(
     tools=[order_query, answer_query],
     model=llm,
-    checkpointer=InMemorySaver())
+    checkpointer=InMemorySaver(),
+    context_schema=Ordercontext,
+    system_prompt="You are an online food delivery application's support assistant." 
+)
 class Chatbot:                                                      # Chatbot Class
     def __init__(self):
         self.config = []
@@ -40,7 +50,9 @@ class Chatbot:                                                      # Chatbot Cl
             return order_id
         return f"'{order_id}' is not a valid Order ID."
         try:
-            order_results = db_agent.invoke(f"Fetch the order information related to Order ID '{order_id}'")
+            order_results = db_agent.invoke({"messages": [{"role": "user", "content": "Fetch the data present in all the columns"}]}, 
+                                            config = {"configurable": {"thread_id": str(uuid7())}}
+                                            ,context=Ordercontext(order_id))
             return response
         except Exception as e:
             print(f"Error getting order results: {str(e)}")
@@ -62,9 +74,9 @@ class Chatbot:                                                      # Chatbot Cl
         3. Pass the response generated in step: 2 by passing it to 'PolishedResponses', where a concise and user-friendly response is generated.
         4. Reply the user with the generated response obtained in the step:3
         """
-        try:
-            response = chatagent.invoke(agent_prompt,config=config)
-            return response
+        try:          
+            response = chatagent.invoke(agent_prompt)["messages"][-1].content       
+            return response        
         except Exception as e:          
             return "Sorry! Something went wrong while processing your request."     
     def chat(self, user_query):
@@ -82,4 +94,4 @@ class Chatbot:                                                      # Chatbot Cl
         response = self.query_response(                                                   # Actual Query Processing 
             order_id=self.order_id,
             user_query=user_query)
-        return response   
+        return response 

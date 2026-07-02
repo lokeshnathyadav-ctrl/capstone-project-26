@@ -6,6 +6,8 @@ from langchain.tools import tool
 from langchain_core.messages import SystemMessage, HumanMessage
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
+from dataclasses import dataclass
+from langchain.agents import create_agent
 @tool("response_generator", description="Generates a raw response to the user query by identifying the results of an order.")
 def order_query(inputs:dict) -> str:
     """ 
@@ -25,10 +27,10 @@ def order_query(inputs:dict) -> str:
     Generate a raw response to the user, querying regard to his order related information. Understand the context present in the user query and generate a raw response by including the exact information he is querying for.  
 
     ### Input:
-    Input is the JSON obtained from the output of 'db_agent'
+    Input is the order context obtained which is obtained as the response from 'db_agent'.
 
     ### Response:
-    A raw response which include the context of the user query paired with the necessary order information he's looking for.
+    A raw response that include the context of the user query paired with the order context.
     """
     
     prompt = f"""
