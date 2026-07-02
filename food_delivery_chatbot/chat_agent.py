@@ -13,12 +13,11 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict
 from queryfunc import order_query, answer_query
+from db_tool import Ordercontext, get_order_info, db_agent
 from langchain.agents import create_agent
 import re
 from dataclasses import dataclass
 from langchain.messages import ToolMessage
-
-
 from langchain.agents import create_agent
 from langchain.tools import tool, ToolRuntime
 from langchain_core.utils.uuid import uuid7
@@ -34,7 +33,7 @@ chatagent = create_agent(
     tools=[order_query, answer_query],
     model=llm,
     checkpointer=InMemorySaver(),
-    context_schema=Ordercontext,
+#    context_schema=Ordercontext,
     system_prompt="You are an online food delivery application's support assistant." 
 )
 class Chatbot:                                                      # Chatbot Class
