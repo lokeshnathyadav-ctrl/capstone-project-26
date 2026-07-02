@@ -46,7 +46,7 @@ class Chatbot:                                                      # Chatbot Cl
             print(f"Error getting order results: {str(e)}")
             return None         
     def query_response(self, order_id, user_query):
-        order_results = self.get_order_details(order_id)
+        order_results = self.get_order_results(order_id) # 'Chatbot' object has no attribute 'get_order_details'
         if not order_results:  
             return "Sorry! Order not found."                 
         # Agent Prompt
@@ -76,12 +76,8 @@ class Chatbot:                                                      # Chatbot Cl
         if self.order_id is None:                                       # If order_id not captured yet
             self.order_id = user_query.strip()            
             return (               
-                f"Thanks! I see you shared your Order ID as "
-                
-
+                f"Thanks! I see you shared your Order ID as "                
                 f"'{self.order_id}'.\n\n"
-
-
                 f"Please tell me your concern with this order.")                
         response = self.query_response(                                                   # Actual Query Processing 
             order_id=self.order_id,
