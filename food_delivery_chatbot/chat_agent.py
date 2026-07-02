@@ -27,34 +27,26 @@ chatagent = create_agent(
     tools=[order_query, answer_query],
     model=llm,
     checkpointer=InMemorySaver())
-# Chatbot Class
-class Chatbot:
+class Chatbot:                                                      # Chatbot Class
     def __init__(self):
         self.config = []
         self.order_id = None
         self.welcome_message = ("Hello! Welcome to Food Delivery Support 🍴")
-        self.ask_order_message = ("Could you please share the Order ID you're searching for?")  
+        self.ask_order_message = ("Could you please share the Order ID you're searching for?")   
+    def validate_an_order(self):
+        order_id = self.order_id
+        if order_id.isdigit() and len(order_id) >= 5:
+            return order_id
+        if re.match(r'^O\d+$', order_id):
+            return order_id
+        return f"'{order_id}' is not a valid Order ID."
     def get_order_results(self, order_id):
         try:
             order_results = db_agent.invoke(f"Fetch the order information related to Order ID '{order_id}'")
             return response
         except Exception as e:
-            # Handle any exceptions that may occur during database query
             print(f"Error getting order results: {str(e)}")
-            return None  
-    def validate_an_order(self,order_id):
-        # Heuristic 1: Purely numeric and of a considerable length (let's say 8 digits)
-        if order_id.isdigit() and len(order_id) >= 5:
-            return f"'{order_id}'"
-
-        # Heuristic 2: Starts with 'ORD' and followed by numbers
-        if re.match(r'^O\d+$', order_id):
-            return f"'{order_id}'"
-
-        # If none of the heuristics match, treat it as plain text
-        return f"'{order_id}' is not a valid Order ID."
-    
-    # Defining a query response function to execute and run the built chat agent
+            return None         
     def query_response(self, order_id, user_query):
         order_results = self.get_order_details(order_id)
         if not order_results:  
@@ -77,25 +69,21 @@ class Chatbot:
             return response
         except Exception as e:          
             return "Sorry! Something went wrong while processing your request."     
-    # Main Chat Function
     def chat(self, user_query):
         self.config.append(user_query)
-        # First Interaction
-        if len(self.config) == 1:
+        if len(self.config) == 1:                                 # First Interaction
             return (
                 f"{self.welcome_message}\n\n"
                 f"{self.ask_order_message}")
-        # If order_id not captured yet
-        if self.order_id is None:            
-            order_id = self.validate_an_order(order_id)            
+        if self.order_id is None:                                       # If order_id not captured yet
+            order_id = self.validate_an_order()            
             if not order_id:
                 return "Sorry, I didn't quite catch that up, could you please provide a valid order."
             return (               
                 f"Thanks! I see you shared your Order ID as "
                 f"'{order_id}'.\n\n"
                 f"Please tell me your concern with this order.")                
-        # Actual Query Processing 
-        response = self.query_response(       
+        response = self.query_response(                                                   # Actual Query Processing 
             order_id=self.order_id,
             user_query=user_query)
         return response   
