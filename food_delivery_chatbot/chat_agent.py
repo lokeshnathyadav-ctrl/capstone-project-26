@@ -31,15 +31,13 @@ class Chatbot:                                                      # Chatbot Cl
     def __init__(self):
         self.config = []
         self.order_id = None
-        self.welcome_message = ("Hello! Welcome to Food Delivery Support 🍴")
-        self.ask_order_message = ("Could you please share the Order ID you're searching for?")   
-    def validate_an_order(self):
-        order_id = self.order_id
-        if order_id.isdigit() and len(order_id) >= 5:
-            return order_id
-        if re.match(r'^O\d+$', order_id):
-            return order_id
+#        if self.order_id.isdigit() and len(self.order_id) >= 5:
+#            return self.order_id
+        if re.match(r'^O\d+$', self.order_id):
+            return self.order_id
         return f"'{order_id}' is not a valid Order ID."
+        self.welcome_message = ("Hello! Welcome to Food Delivery Support 🍴")
+        self.ask_order_message = ("Could you please share the Order ID you're searching for?")
     def get_order_results(self, order_id):
         try:
             order_results = db_agent.invoke(f"Fetch the order information related to Order ID '{order_id}'")
