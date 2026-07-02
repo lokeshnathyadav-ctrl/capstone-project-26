@@ -74,7 +74,7 @@ class Chatbot:                                                      # Chatbot Cl
                 f"{self.welcome_message}\n\n"
                 f"{self.ask_order_message}")
         if self.order_id is None:                                       # If order_id not captured yet
-            order_id = self.validate_an_order()            
+            self.order_id = user_query.strip()          
             if not order_id:
                 return "Sorry, I didn't quite catch that up, could you please provide a valid order."
             return (               
